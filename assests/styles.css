@@ -1,0 +1,850 @@
+/* ══════════════════════════════════════════════════════════════════
+   Code's Roadmap — shared stylesheet
+   Creative Tech Studio
+
+   Used by: index.html, deploy-trail.html, template-roadmap.html
+   (and any new roadmap page copied from template-roadmap.html)
+
+   Sections:
+   1. Tokens & reset
+   2. Ambient background (circuit grid + floating chips)
+   3. Page shell (.wrap, homepage top bar, detail-page nav bar)
+   4. Homepage hero (title, search, filter pills)
+   5. Homepage category sections & roadmap cards
+   6. Roadmap detail header (title, progress bar, legend)
+   7. Roadmap detail waypoint trail (stops, badges, commands)
+   8. Footer & reduced-motion
+   9. Responsive
+   ══════════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* ---------- 1. Tokens & reset ---------- */
+:root {
+  --void: #0A1220;
+  --void-deep: #060B15;
+  --card: #101B31;
+  --card-hover: #16233F;
+  --line: #223257;
+  --line-bright: #33507F;
+  --ink: #EDF3FF;
+  --ink-soft: #8FA3C9;
+  --ink-faint: #4E5F82;
+  --orange: #FF6B2C;
+  --orange-soft: rgba(255, 107, 44, 0.14);
+  --cyan: #2FE6E6;
+  --cyan-soft: rgba(47, 230, 230, 0.14);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--void);
+  color: var(--ink);
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- 2. Ambient background ---------- */
+.bg-field {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(ellipse 700px 320px at 12% 0%, rgba(255,107,44,0.08), transparent),
+    radial-gradient(ellipse 700px 320px at 88% 8%, rgba(47,230,230,0.07), transparent),
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: auto, auto, 42px 42px, 42px 42px;
+  background-position: 0 0, 0 0, 0 0, 0 0;
+  opacity: 1;
+  mask-image: radial-gradient(ellipse 1200px 700px at 50% 0%, black, transparent 75%);
+}
+.bg-field::before,
+.bg-field::after {
+  content: '';
+  position: absolute;
+  opacity: 0.35;
+}
+
+/* floating pixel chips echoing the logo — homepage only, but harmless if unused elsewhere */
+.chip {
+  position: fixed;
+  border-radius: 3px;
+  z-index: 0;
+  pointer-events: none;
+  animation: drift 7s ease-in-out infinite;
+}
+@keyframes drift {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+.chip.o { background: var(--orange); box-shadow: 0 0 16px rgba(255,107,44,0.55); }
+.chip.c { background: var(--cyan); box-shadow: 0 0 16px rgba(47,230,230,0.55); }
+
+/* ---------- 3. Page shell ---------- */
+
+/* base .wrap — every page adds a size modifier alongside it:
+     .wrap.wrap--home   max-width 1080px  (index.html)
+     .wrap.wrap--trail  max-width 720px   (deploy-trail.html, template-roadmap.html) */
+.wrap {
+  position: relative;
+  z-index: 1;
+  margin: 0 auto;
+}
+.wrap--home {
+  max-width: 1080px;
+  padding: 56px 24px 100px;
+}
+.wrap--trail {
+  max-width: 720px;
+  padding: 0 20px 100px;
+}
+
+/* homepage top bar (logo only, centered) */
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 44px;
+}
+.top img { height: 290px; width: auto; }
+.top-word {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+}
+
+/* detail-page nav bar (logo + back link) */
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px 20px 0;
+}
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+.nav-brand img { height: 80px; }
+.nav-brand span {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.back-link {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px;
+  color: var(--ink-soft);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  transition: all 0.15s ease;
+}
+.back-link:hover { border-color: var(--line-bright); color: var(--ink); }
+
+/* ---------- 4. Homepage hero ---------- */
+.hero {
+  text-align: center;
+  max-width: 640px;
+  margin: 0 auto 64px;
+}
+
+.hero-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  margin-bottom: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.hero-eyebrow::before,
+.hero-eyebrow::after {
+  content: '';
+  width: 20px;
+  height: 1px;
+  background: var(--line-bright);
+}
+
+.hero h1 {
+  font-family: 'Chakra Petch', sans-serif;
+  font-weight: 700;
+  font-size: clamp(36px, 6vw, 54px);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  margin: 0 0 16px;
+  background: linear-gradient(100deg, var(--orange) 0%, var(--ink) 45%, var(--cyan) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hero p {
+  color: var(--ink-soft);
+  font-size: 15.5px;
+  line-height: 1.65;
+  margin: 0;
+}
+
+/* search box */
+.search-wrap {
+  position: relative;
+  max-width: 420px;
+  margin: 32px auto 0;
+}
+.search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--ink-faint);
+  font-size: 14px;
+  pointer-events: none;
+}
+#search-input {
+  width: 100%;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 12px 40px 12px 40px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13.5px;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+#search-input::placeholder { color: var(--ink-faint); }
+#search-input:focus {
+  border-color: var(--cyan);
+  background: var(--card-hover);
+}
+.search-clear {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--ink-faint);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.search-clear:hover { color: var(--ink); background: var(--line); }
+.search-clear.show { display: flex; }
+
+.no-results {
+  display: none;
+  text-align: center;
+  padding: 48px 20px;
+  color: var(--ink-faint);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+}
+.no-results.show { display: block; }
+
+mark {
+  background: var(--orange-soft);
+  color: var(--orange);
+  border-radius: 3px;
+  padding: 0 2px;
+}
+
+/* filter row */
+.controls {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 16px auto 0;
+}
+.filter-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+.filter-pill:hover { border-color: var(--line-bright); color: var(--ink); }
+.filter-pill.active {
+  background: var(--orange-soft);
+  border-color: var(--orange);
+  color: var(--orange);
+}
+
+/* ---------- 5. Homepage category sections & roadmap cards ---------- */
+.category {
+  margin-top: 56px;
+}
+
+.category-head {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.category-head h2 {
+  font-family: 'Chakra Petch', sans-serif;
+  font-weight: 600;
+  font-size: 20px;
+  margin: 0;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.category-rule {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--line-bright), transparent);
+}
+
+.category-count {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+/* roadmap card — PCB tile */
+.card {
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 20px 20px 18px;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  overflow: hidden;
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+  cursor: pointer;
+}
+.card:hover {
+  background: var(--card-hover);
+  border-color: var(--line-bright);
+  transform: translateY(-2px);
+}
+
+/* corner circuit traces */
+.card::before {
+  content: '';
+  position: absolute;
+  top: -1px; right: -1px;
+  width: 34px; height: 34px;
+  border-top: 2px solid var(--card-accent, var(--cyan));
+  border-right: 2px solid var(--card-accent, var(--cyan));
+  border-radius: 0 10px 0 0;
+  opacity: 0.55;
+}
+.card::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; left: -1px;
+  width: 20px; height: 20px;
+  border-bottom: 2px solid var(--card-accent, var(--cyan));
+  border-left: 2px solid var(--card-accent, var(--cyan));
+  border-radius: 0 0 0 10px;
+  opacity: 0.3;
+}
+
+.card.track-orange { --card-accent: var(--orange); }
+.card.track-cyan { --card-accent: var(--cyan); }
+
+.card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.card-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+  background: var(--card-accent, var(--cyan));
+  background: color-mix(in srgb, var(--card-accent, var(--cyan)) 16%, transparent);
+  border: 1px solid var(--card-accent, var(--cyan));
+}
+
+.diff {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+  margin-top: 2px;
+}
+.diff.beginner { background: var(--cyan-soft); color: var(--cyan); }
+.diff.intermediate { background: var(--orange-soft); color: var(--orange); }
+.diff.locked { background: rgba(143,163,201,0.1); color: var(--ink-faint); }
+
+.card h3 {
+  font-family: 'Chakra Petch', sans-serif;
+  font-weight: 600;
+  font-size: 16.5px;
+  margin: 0 0 6px;
+  color: var(--ink);
+}
+
+.card p {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  margin: 0 0 16px;
+}
+
+.card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-faint);
+  padding-top: 12px;
+  border-top: 1px dashed var(--line);
+}
+
+.steps-dots {
+  display: flex;
+  gap: 3px;
+}
+.steps-dots span {
+  width: 4px; height: 4px;
+  border-radius: 1px;
+  background: var(--line-bright);
+}
+
+.go {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--card-accent, var(--cyan));
+  transition: gap 0.15s ease;
+}
+.card:hover .go { gap: 7px; }
+
+/* locked card variant */
+.card.locked {
+  cursor: default;
+}
+.card.locked:hover {
+  transform: none;
+  background: var(--card);
+  border-color: var(--line);
+}
+.card.locked h3, .card.locked p { color: var(--ink-faint); }
+.card.locked .card-icon {
+  opacity: 0.5;
+}
+.card.locked::before, .card.locked::after { opacity: 0.15; }
+
+/* ---------- 6. Roadmap detail header ---------- */
+.trail-header {
+  position: relative;
+  max-width: 560px;
+  margin: 44px auto 36px;
+  text-align: center;
+}
+
+.trail-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  margin-bottom: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.trail-eyebrow::before,
+.trail-eyebrow::after {
+  content: '';
+  width: 20px;
+  height: 1px;
+  background: var(--line-bright);
+}
+
+.trail-title {
+  font-family: 'Chakra Petch', sans-serif;
+  font-weight: 700;
+  font-size: clamp(28px, 5vw, 38px);
+  letter-spacing: -0.01em;
+  margin: 0 0 12px;
+  background: linear-gradient(100deg, var(--orange) 0%, var(--ink) 45%, var(--cyan) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.trail-sub {
+  color: var(--ink-soft);
+  font-size: 14.5px;
+  line-height: 1.6;
+  margin: 0 auto;
+  max-width: 460px;
+}
+
+.progress-wrap {
+  max-width: 420px;
+  margin: 26px auto 0;
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px;
+  color: var(--ink-soft);
+  margin-bottom: 6px;
+}
+
+.progress-track {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--orange), var(--cyan));
+  width: 0%;
+  transition: width 0.5s cubic-bezier(.4,0,.2,1);
+}
+
+.legend {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+  font-size: 11.5px;
+  color: var(--ink-faint);
+  font-family: 'JetBrains Mono', monospace;
+}
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+
+/* ---------- 7. Roadmap detail waypoint trail ---------- */
+.trail {
+  position: relative;
+  max-width: 620px;
+  margin: 0 auto;
+}
+
+.trail-spine {
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 23px;
+  width: 2px;
+  background-image: linear-gradient(var(--line) 60%, transparent 40%);
+  background-size: 2px 14px;
+  background-repeat: repeat-y;
+}
+
+.stop {
+  position: relative;
+  padding-left: 62px;
+  margin-bottom: 6px;
+}
+
+.stop-marker {
+  position: absolute;
+  left: 0;
+  top: 2px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--card);
+  border: 2px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Chakra Petch', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--ink-faint);
+  z-index: 1;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.stop.cleared .stop-marker {
+  background: var(--cyan-soft);
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+
+.stop.current .stop-marker {
+  background: var(--orange-soft);
+  border-color: var(--orange);
+  color: var(--orange);
+  box-shadow: 0 0 0 4px rgba(255, 107, 44, 0.12);
+}
+
+.stop-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.stop-card:hover { background: var(--card-hover); }
+
+.stop-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.stop-title-row {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+
+.stop-title {
+  font-family: 'Chakra Petch', sans-serif;
+  font-weight: 600;
+  font-size: 15.5px;
+  color: var(--ink);
+}
+
+.stop-name {
+  font-size: 12px;
+  color: var(--ink-faint);
+  font-style: italic;
+}
+
+.chevron {
+  color: var(--ink-faint);
+  font-size: 12px;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+.stop.expanded .chevron { transform: rotate(90deg); }
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  margin-top: 8px;
+  width: fit-content;
+}
+.badge.local { background: rgba(143,163,201,0.1); color: var(--ink-soft); }
+.badge.cloud { background: var(--orange-soft); color: var(--orange); }
+.badge.manual { background: rgba(143,163,201,0.1); color: var(--ink-soft); }
+.badge.done { background: var(--cyan-soft); color: var(--cyan); }
+
+.stop-detail {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+.stop.expanded .stop-detail { max-height: 400px; }
+
+.stop-detail-inner {
+  padding-top: 12px;
+  margin-top: 12px;
+  border-top: 1px dashed var(--line);
+}
+
+.stop-desc {
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  line-height: 1.6;
+  margin: 0 0 12px;
+}
+
+.cmd-block {
+  background: #060B15;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px;
+  color: #C9E8D8;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.cmd-block pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  flex: 1;
+}
+
+.copy-btn {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--line);
+  color: var(--ink-soft);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  padding: 4px 9px;
+  border-radius: 6px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+.copy-btn:hover { background: rgba(255,255,255,0.12); color: var(--ink); }
+.copy-btn.copied { color: var(--cyan); border-color: var(--cyan); }
+
+.manual-list {
+  font-size: 13px;
+  color: var(--ink-soft);
+  line-height: 1.7;
+  margin: 0 0 12px;
+  padding-left: 18px;
+}
+
+.clear-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.clear-check {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1.5px solid var(--ink-faint);
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+.clear-check.on {
+  background: var(--cyan);
+  border-color: var(--cyan);
+}
+.clear-check svg { display: none; width: 10px; height: 10px; }
+.clear-check.on svg { display: block; stroke: var(--void); }
+
+.clear-label {
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.summit-banner {
+  max-width: 620px;
+  margin: 28px auto 0;
+  text-align: center;
+  padding: 18px;
+  border-radius: 10px;
+  background: var(--cyan-soft);
+  border: 1px solid var(--cyan);
+  color: var(--cyan);
+  font-family: 'Chakra Petch', sans-serif;
+  font-weight: 600;
+  font-size: 14.5px;
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: opacity 0.4s ease, max-height 0.4s ease, margin 0.4s ease;
+}
+.summit-banner.show {
+  opacity: 1;
+  max-height: 100px;
+  margin-top: 28px;
+}
+
+.reset-row {
+  text-align: center;
+  margin-top: 22px;
+}
+.reset-btn {
+  background: none;
+  border: none;
+  color: var(--ink-faint);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.reset-btn:hover { color: var(--ink-soft); }
+
+/* ---------- 8. Footer & reduced-motion ---------- */
+footer {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 40px 24px 40px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-faint);
+  letter-spacing: 0.04em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progress-fill, .stop-detail, .summit-banner, .chevron { transition: none; }
+}
+
+/* ---------- 9. Responsive ---------- */
+@media (max-width: 480px) {
+  .grid { grid-template-columns: 1fr; }
+  .category-head h2 { font-size: 17px; }
+}

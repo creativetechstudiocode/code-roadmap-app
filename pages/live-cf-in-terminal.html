@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Live on Cloudflare Via Terminal by Code's Roadmap</title>
+<link rel="stylesheet" href="../assests/styles.css">
+</head>
+<body>
+
+<div class="bg-field"></div>
+
+<div class="nav">
+  <a class="nav-brand" href="../index.html">
+    <img src="../assests/cts-mark-logo.png" alt="Creative Tech Studio logo">
+    <span>Creative Tech Studio</span>
+  </a>
+  <a class="back-link" href="../index.html">← All Roadmaps</a>
+</div>
+
+<div class="wrap wrap--trail">
+
+  <div class="trail-header">
+    <div class="trail-eyebrow">Ship It · Deploy Trail</div>
+    <h1 class="trail-title">Live on Cloudflare Via Terminal</h1>
+    <p class="trail-sub">8 steps to get a working app at your own URL. Click any step for the exact commands. Check them off as you clear them, your progress is saved.</p>
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span id="progress-text">0 / 8 cleared</span>
+        <span id="progress-pct">0%</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+    </div>
+    <div class="legend">
+      <span>⚪ local only</span>
+      <span>🟠 creates something in Cloudflare</span>
+      <span>⚪ manual dashboard step</span>
+    </div>
+  </div>
+
+  <div class="trail">
+    <div class="trail-spine"></div>
+    <div id="stops"></div>
+  </div>
+
+  <div class="summit-banner" id="summit-banner">🏔️ Summit reached — your app is live. Go visit its URL.</div>
+
+  <div class="reset-row">
+    <button class="reset-btn" id="reset-btn">reset progress</button>
+  </div>
+</div>
+
+<footer>CREATIVE TECH STUDIO — CODE'S ROADMAP</footer>
+
+<script>
+(function () {
+  const STEPS = [
+    {
+      id: 'tools',
+      name: 'Trailhead',
+      title: 'Get the tools',
+      badge: 'local',
+      badgeLabel: 'local only',
+      desc: "Install Node.js if you don't already have it (it bundles npm). Then install this project's dependencies.",
+      commands: ['node -v', 'npm install'],
+    },
+    {
+      id: 'login',
+      name: 'Sign the register',
+      title: 'Connect Wrangler to your account',
+      badge: 'local',
+      badgeLabel: 'authorizes CLI, creates nothing',
+      desc: "Wrangler is Cloudflare's CLI. This opens a browser to log in and link it to your account — no resources are created yet.",
+      commands: ['npx wrangler login'],
+    },
+    {
+      id: 'db',
+      name: 'First cairn',
+      title: 'Create the database',
+      badge: 'cloud',
+      badgeLabel: 'creates a real resource',
+      desc: 'This is the first thing that actually gets created in your Cloudflare account: a D1 database to hold your notes and folders.',
+      commands: ['npx wrangler d1 create kb-app-db'],
+    },
+    {
+      id: 'wire',
+      name: 'Mark the map',
+      title: 'Wire up the database',
+      badge: 'cloud',
+      badgeLabel: 'creates tables in your database',
+      desc: "Copy the database_id Wrangler printed into wrangler.jsonc, then apply the schema — once to your local emulation, once to the real remote database.",
+      commands: ['npm run db:migrate:local', 'npm run db:migrate:remote'],
+    },
+    {
+      id: 'dev',
+      name: 'Scout the route',
+      title: 'Test it locally',
+      badge: 'local',
+      badgeLabel: 'runs only on your machine',
+      desc: 'Run the app in a local emulation of the Workers runtime before shipping anything live.',
+      commands: ['npm run dev'],
+    },
+    {
+      id: 'deploy',
+      name: 'Reach the summit',
+      title: 'Deploy',
+      badge: 'cloud',
+      badgeLabel: 'creates the live Worker',
+      desc: 'This is the step that actually creates the Worker in your account and puts your app on the internet at a *.workers.dev URL.',
+      commands: ['npm run deploy'],
+    },
+    {
+      id: 'access',
+      name: 'Lock the gate',
+      title: 'Set up Cloudflare Access',
+      badge: 'manual',
+      badgeLabel: 'done by hand in the dashboard',
+      desc: 'In the Cloudflare dashboard, restrict your Worker to just you.',
+      manualSteps: [
+        'Zero Trust → Access → Applications → Add an application → Self-hosted',
+        "Set the domain to your Worker's *.workers.dev URL (or a custom domain)",
+        'Add a policy that allows only your email address',
+        'Save',
+      ],
+    },
+    {
+      id: 'arrive',
+      name: "You've arrived",
+      title: 'Visit your live app',
+      badge: 'done',
+      badgeLabel: 'live',
+      desc: "Open your Worker's URL. Access will prompt you to log in, then you land straight in your knowledge base.",
+    },
+  ];
+
+  const stopsEl = document.getElementById('stops');
+  const progressFill = document.getElementById('progress-fill');
+  const progressText = document.getElementById('progress-text');
+  const progressPct = document.getElementById('progress-pct');
+  const summitBanner = document.getElementById('summit-banner');
+  const resetBtn = document.getElementById('reset-btn');
+
+  let completed = new Set();
+  let expanded = new Set();
+
+  function badgeIcon(badge) {
+    if (badge === 'cloud') return '🟠';
+    if (badge === 'manual') return '⚪';
+    if (badge === 'done') return '🎉';
+    return '⚪';
+  }
+
+  function render() {
+    stopsEl.innerHTML = '';
+    const firstIncompleteIdx = STEPS.findIndex(s => !completed.has(s.id));
+
+    STEPS.forEach((step, i) => {
+      const isCleared = completed.has(step.id);
+      const isCurrent = !isCleared && i === firstIncompleteIdx;
+      const isExpanded = expanded.has(step.id) || isCurrent;
+      const isLast = i === STEPS.length - 1;
+
+      const stopEl = document.createElement('div');
+      stopEl.className = 'stop' + (isCleared ? ' cleared' : '') + (isCurrent ? ' current' : '') + (isExpanded ? ' expanded' : '');
+
+      const cmdHtml = (step.commands || []).map((c) =>
+        `<div class="cmd-block">
+          <pre>${escapeHtml(c)}</pre>
+          <button class="copy-btn" data-copy="${encodeURIComponent(c)}">copy</button>
+        </div>`
+      ).join('');
+
+      const manualHtml = step.manualSteps
+        ? `<ol class="manual-list">${step.manualSteps.map(m => `<li>${escapeHtml(m)}</li>`).join('')}</ol>`
+        : '';
+
+      stopEl.innerHTML = `
+        <div class="stop-marker" data-toggle="${step.id}">${isCleared ? '✓' : i + 1}</div>
+        <div class="stop-card" data-toggle="${step.id}">
+          <div class="stop-card-head">
+            <div>
+              <div class="stop-title-row">
+                <span class="stop-title">${escapeHtml(step.title)}</span>
+                ${step.name ? `<span class="stop-name">${escapeHtml(step.name)}</span>` : ''}
+              </div>
+              <span class="badge ${step.badge}">${badgeIcon(step.badge)} ${escapeHtml(step.badgeLabel)}</span>
+            </div>
+            <span class="chevron">▸</span>
+          </div>
+          <div class="stop-detail">
+            <div class="stop-detail-inner">
+              <p class="stop-desc">${escapeHtml(step.desc)}</p>
+              ${cmdHtml}
+              ${manualHtml}
+              ${!isLast ? `
+                <div class="clear-row" data-clear-row>
+                  <div class="clear-check ${isCleared ? 'on' : ''}" data-clear="${step.id}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+                  </div>
+                  <label class="clear-label" data-clear="${step.id}">Mark cleared</label>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+      stopsEl.appendChild(stopEl);
+    });
+
+    // progress (counts everything except the final step)
+    const trackedCount = STEPS.length - 1;
+    const doneCount = completed.size;
+    const pct = trackedCount > 0 ? Math.round((doneCount / trackedCount) * 100) : 0;
+    progressFill.style.width = pct + '%';
+    progressText.textContent = doneCount + ' / ' + trackedCount + ' cleared';
+    progressPct.textContent = pct + '%';
+    summitBanner.classList.toggle('show', doneCount === trackedCount && trackedCount > 0);
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  stopsEl.addEventListener('click', (e) => {
+    const clearTarget = e.target.closest('[data-clear]');
+    if (clearTarget) {
+      e.stopPropagation();
+      const id = clearTarget.getAttribute('data-clear');
+      if (completed.has(id)) completed.delete(id); else completed.add(id);
+      saveProgress();
+      render();
+      return;
+    }
+
+    const copyTarget = e.target.closest('[data-copy]');
+    if (copyTarget) {
+      e.stopPropagation();
+      const text = decodeURIComponent(copyTarget.getAttribute('data-copy'));
+      copyToClipboard(text, copyTarget);
+      return;
+    }
+
+    const toggleTarget = e.target.closest('[data-toggle]');
+    if (toggleTarget) {
+      const id = toggleTarget.getAttribute('data-toggle');
+      if (expanded.has(id)) expanded.delete(id); else expanded.add(id);
+      render();
+    }
+  });
+
+  function copyToClipboard(text, btn) {
+    const done = () => {
+      const original = btn.textContent;
+      btn.textContent = 'copied';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = original;
+        btn.classList.remove('copied');
+      }, 1200);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(done);
+    } else {
+      done();
+    }
+  }
+
+  resetBtn.addEventListener('click', () => {
+    completed = new Set();
+    expanded = new Set();
+    saveProgress();
+    render();
+  });
+
+  function loadProgress() {
+    try {
+      const raw = localStorage.getItem('deploy-trail-progress');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed.completed)) completed = new Set(parsed.completed);
+      }
+    } catch (e) {
+      // no saved progress yet, or storage unavailable
+    }
+    render();
+  }
+
+  function saveProgress() {
+    try {
+      localStorage.setItem('deploy-trail-progress', JSON.stringify({ completed: Array.from(completed) }));
+    } catch (e) {
+      console.error('Could not save progress', e);
+    }
+  }
+
+  loadProgress();
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Code's Roadmap by Creative Tech Studio</title>
+<link rel="stylesheet" href="/assests/styles.css">
+</head>
+<body>
+
+<div class="bg-field"></div>
+<div class="chip o" style="top:14%; left:6%; width:10px; height:10px;"></div>
+<div class="chip c" style="top:9%; left:88%; width:8px; height:8px; animation-delay:1.2s;"></div>
+<div class="chip c" style="top:22%; left:92%; width:12px; height:12px; animation-delay:2.4s;"></div>
+<div class="chip o" style="top:30%; left:3%; width:7px; height:7px; animation-delay:0.6s;"></div>
+
+<div class="wrap wrap--home">
+
+  <!-- <div class="top">
+    <img src="./assests/ctslogo.png" alt="Creative Tech Studio logo">
+  </div> -->
+
+  <div class="nav">
+  <a class="nav-brand" href="https://creativetechstudio.org/">
+    <img src="../assests/cts-mark-logo.png" alt="Creative Tech Studio logo">
+    <span>Creative Tech Studio</span>
+  </a>
+  <a class="back-link" href="https://creativetechstudio.org/">← creativetechstudio.org</a>
+</div>
+
+  <div class="hero">
+    <!-- <div class="hero-eyebrow">Creative Tech Studio</div> -->
+    <h1>Code's Roadmap</h1>
+    <p>Pick a skill, follow the path. Every roadmap breaks a coding goal into clear, ordered waypoints — tap any stop for the exact steps.</p>
+
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input type="text" id="search-input" placeholder="Search roadmaps… try “python” or “deploy”" autocomplete="off">
+      <button class="search-clear" id="search-clear" aria-label="Clear search">✕</button>
+    </div>
+
+    <div class="controls">
+      <span class="filter-pill active" data-filter="all">All Paths</span>
+      <span class="filter-pill" data-filter="beginner">Beginner</span>
+      <span class="filter-pill" data-filter="intermediate">Intermediate</span>
+    </div>
+  </div>
+
+  <!-- WEB BASICS -->
+  <div class="category" data-category>
+    <div class="category-head">
+      <h2>Web Basics</h2>
+      <div class="category-rule"></div>
+      <div class="category-count">3 paths</div>
+    </div>
+    <div class="grid">
+
+      <a class="card track-cyan" href="#" data-diff="beginner">
+        <div class="card-top">
+          <div class="card-icon">◇</div>
+          <span class="diff beginner">Beginner</span>
+        </div>
+        <h3>Build Your First Webpage</h3>
+        <p>Go from a blank file to a real page online, using nothing but HTML and CSS.</p>
+        <div class="card-foot">
+          <span class="steps-dots"><span></span><span></span><span></span><span></span><span></span><span></span></span>
+          <span class="go">Start →</span>
+        </div>
+      </a>
+
+      <a class="card track-cyan" href="#" data-diff="beginner">
+        <div class="card-top">
+          <div class="card-icon">▦</div>
+          <span class="diff beginner">Beginner</span>
+        </div>
+        <h3>Style It Up</h3>
+        <p>Learn layout with Flexbox and Grid so your pages stop looking stacked and start looking designed.</p>
+        <div class="card-foot">
+          <span class="steps-dots"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span>
+          <span class="go">Start →</span>
+        </div>
+      </a>
+
+      <a class="card track-orange" href="#" data-diff="beginner">
+        <div class="card-top">
+          <div class="card-icon">⚡</div>
+          <span class="diff beginner">Beginner</span>
+        </div>
+        <h3>Make It Move</h3>
+        <p>Add JavaScript to your page so buttons click, menus open, and things actually respond.</p>
+        <div class="card-foot">
+          <span class="steps-dots"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span>
+          <span class="go">Start →</span>
+        </div>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- PYTHON & LOGIC -->
+  <div class="category" data-category>
+    <div class="category-head">
+      <h2>Python &amp; Logic</h2>
+      <div class="category-rule"></div>
+      <div class="category-count">2 paths</div>
+    </div>
+    <div class="grid">
+
+      <a class="card track-orange" href="#" data-diff="beginner">
+        <div class="card-top">
+          <div class="card-icon">◆</div>
+          <span class="diff beginner">Beginner</span>
+        </div>
+        <h3>Python From Scratch</h3>
+        <p>Variables, loops, and functions — the building blocks every program is made of.</p>
+        <div class="card-foot">
+          <span class="steps-dots"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span>
+          <span class="go">Start →</span>
+        </div>
+      </a>
+
+      <a class="card track-orange" href="#" data-diff="intermediate">
+        <div class="card-top">
+          <div class="card-icon">🎮</div>
+          <span class="diff intermediate">Intermediate</span>
+        </div>
+        <h3>Build a Simple Game</h3>
+        <p>Use Python and Pygame to build a playable game from scratch — sprites, scoring, and all.</p>
+        <div class="card-foot">
+          <span class="steps-dots"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span>
+          <span class="go">Start →</span>
+        </div>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- SHIP IT -->
+  <div class="category" data-category>
+    <div class="category-head">
+      <h2>Ship It</h2>
+      <div class="category-rule"></div>
+      <div class="category-count">2 paths</div>
+    </div>
+    <div class="grid">
+
+      <a class="card track-cyan" href="#" data-diff="beginner">
+        <div class="card-top">
+          <div class="card-icon">◈</div>
+          <span class="diff beginner">Beginner</span>
+        </div>
+        <h3>Version Control with Git</h3>
+        <p>Save your progress like a checkpoint system, and never lose work again.</p>
+        <div class="card-foot">
+          <span class="steps-dots"><span></span><span></span><span></span><span></span><span></span><span></span></span>
+          <span class="go">Start →</span>
+        </div>
+      </a>
+
+      <a class="card track-orange" href="/pages/live-cf-in-terminal.html" data-diff="intermediate">
+        <div class="card-top">
+          <div class="card-icon">🏔️</div>
+          <span class="diff intermediate">Intermediate</span>
+        </div>
+        <h3>Zero to Live on Cloudflare</h3>
+        <p>Deploy a real app to a real URL, step by step, from an empty terminal to summit.</p>
+        <div class="card-foot">
+          <span class="steps-dots"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span>
+          <span class="go">Start →</span>
+        </div>
+      </a>
+
+    </div>
+  </div>
+
+  <div class="no-results" id="no-results">
+    ◆ No roadmaps match “<span id="no-results-term"></span>”. Try a different search.
+  </div>
+
+</div>
+
+<footer>CREATIVE TECH STUDIO — CODE'S ROADMAP</footer>
+
+<script>
+  const pills = document.querySelectorAll('.filter-pill');
+  const cards = document.querySelectorAll('.card[data-diff]');
+  const categories = document.querySelectorAll('[data-category]');
+  const searchInput = document.getElementById('search-input');
+  const searchClear = document.getElementById('search-clear');
+  const noResults = document.getElementById('no-results');
+  const noResultsTerm = document.getElementById('no-results-term');
+
+  let activeDiff = 'all';
+
+  // cache each card's plain title/desc text once, for matching + restoring
+  cards.forEach(card => {
+    const titleEl = card.querySelector('h3');
+    const descEl = card.querySelector('p');
+    card._titleText = titleEl.textContent;
+    card._descText = descEl.textContent;
+  });
+
+  function highlight(text, term) {
+    if (!term) return text;
+    const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = new RegExp('(' + escaped + ')', 'ig');
+    return text.replace(re, '<mark>$1</mark>');
+  }
+
+  function applyFilters() {
+    const term = searchInput.value.trim().toLowerCase();
+    searchClear.classList.toggle('show', term.length > 0);
+
+    let anyVisible = false;
+
+    cards.forEach(card => {
+      const titleEl = card.querySelector('h3');
+      const descEl = card.querySelector('p');
+
+      const diffMatch = activeDiff === 'all' || card.getAttribute('data-diff') === activeDiff;
+      const haystack = (card._titleText + ' ' + card._descText).toLowerCase();
+      const textMatch = term === '' || haystack.includes(term);
+      const visible = diffMatch && textMatch;
+
+      card.style.display = visible ? '' : 'none';
+      titleEl.innerHTML = highlight(card._titleText, term);
+      descEl.innerHTML = highlight(card._descText, term);
+
+      if (visible) anyVisible = true;
+    });
+
+    categories.forEach(cat => {
+      const visibleCards = Array.from(cat.querySelectorAll('.card[data-diff]')).filter(c => c.style.display !== 'none');
+      cat.style.display = visibleCards.length ? '' : 'none';
+    });
+
+    noResults.classList.toggle('show', !anyVisible);
+    noResultsTerm.textContent = searchInput.value.trim();
+  }
+
+  pills.forEach(pill => {
+    pill.addEventListener('click', () => {
+      pills.forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      activeDiff = pill.getAttribute('data-filter');
+      applyFilters();
+    });
+  });
+
+  searchInput.addEventListener('input', applyFilters);
+
+  searchClear.addEventListener('click', () => {
+    searchInput.value = '';
+    applyFilters();
+    searchInput.focus();
+  });
+
+  // "/" focuses search, like most doc/search UIs
+  document.addEventListener('keydown', (e) => {
+    if (e.key === '/' && document.activeElement !== searchInput) {
+      e.preventDefault();
+      searchInput.focus();
+    }
+    if (e.key === 'Escape' && document.activeElement === searchInput) {
+      searchInput.value = '';
+      applyFilters();
+      searchInput.blur();
+    }
+  });
+</script>
+
+</body>
+</html>
