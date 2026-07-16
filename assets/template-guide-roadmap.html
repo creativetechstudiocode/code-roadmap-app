@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!--
+  ══════════════════════════════════════════════════════════════════
+  GUIDE PAGE TEMPLATE — Code's Roadmap / Creative Tech Studio
+  ══════════════════════════════════════════════════════════════════
+
+  WHAT THIS IS
+  A reference-guide page: a sidebar of topics on the left, a reading
+  panel on the right, and a terminal switcher that rewrites shell
+  commands (macOS/Linux, Git Bash, PowerShell, CMD) across the whole
+  page at once. Use this for lookup-style content (Git, Cloudflare,
+  etc.) — NOT for a start-to-finish roadmap. For those, copy
+  template-roadmap.html instead.
+
+  HOW TO USE THIS FILE
+  0. Keep this file in the same /pages/ folder as the other guides.
+     It links /assets/styles.css and /assets/cts-mark-logo.png by
+     absolute path, so those must exist at the site root.
+  1. Copy this file, rename it (e.g. python-guide.html).
+  2. Update the <title>, the panel <h1>, and the .panel-intro text.
+     Search for "EDIT:" comments — those mark every spot to change.
+  3. Fill in the TOPICS array with your own content (see the shape
+     reference below). Delete the sample topics once you're done.
+  4. Add a card linking to this page from index.html, in the right
+     category grid, with a "Guide" tag.
+
+  TOPIC OBJECT SHAPE
+    id        — unique short string, no spaces (used for nav + deep links)
+    group     — sidebar section this topic belongs under (topics are
+                grouped in the order the groups first appear)
+    title     — the topic's name, shown in the sidebar and as the heading
+    intro     — 1–3 sentence lead paragraph
+    keypoints — optional array of short takeaways (HTML allowed).
+                Renders as the cyan "Key points" callout.
+    steps     — array of step objects (below). Can be empty [] for a
+                pure-explanation topic.
+
+  STEP OBJECT SHAPE
+    title    — the step heading
+    body     — optional sentence(s) of explanation (HTML allowed)
+    cmds     — optional array of command objects (below)
+    table    — optional comparison table: { head: [...], rows: [[...]] }
+               Each row cell is a full <td>…</td> string so you can add
+               classes like <td class="k">R2</td> for the mono accent.
+    callout  — optional { type: 'info' | 'warn', html: '…' } highlight box
+
+  COMMAND OBJECT SHAPE
+    { code: 'literal command' }            — same on every terminal
+    { code: '…', comment: 'shown as # …' } — adds a grey inline comment
+    { shell: 'setenv', args: ['K','v'] }   — swaps per terminal, using
+                                             the SHELL table in the script
+
+  INLINE FORMATTING
+    Use <code class="inline">like this</code> for inline code inside
+    any body / intro / keypoint / callout text.
+
+  ADDING A TERMINAL-SPECIFIC COMMAND
+    Most commands (git, npm, wrangler) are identical across terminals —
+    just use { code: '…' }. Only NATIVE shell commands differ. To add a
+    new one, add an entry to the SHELL object in the script with a
+    function per terminal, then reference it as { shell: 'name', args: [...] }.
+    An example ('setenv') is included.
+  ══════════════════════════════════════════════════════════════════
+-->
+
+<!-- EDIT: browser tab title -->
+<title>[Guide Title] — Code's Roadmap</title>
+
+<link rel="stylesheet" href="/assets/styles.css">
+<style>
+  /* ── Guide-specific layout (sidebar + panel). Everything else comes from styles.css ── */
+
+  .guide-shell {
+    position: relative;
+    z-index: 1;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 20px 80px;
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 32px;
+    align-items: start;
+  }
+
+  .side {
+    position: sticky;
+    top: 20px;
+    align-self: start;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+  }
+  .side-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    padding: 6px 10px 12px;
+  }
+  .side-group + .side-group { margin-top: 14px; }
+  .side-group-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    padding: 6px 10px;
+    opacity: 0.85;
+  }
+  .side-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: background 0.14s ease, color 0.14s ease, border-color 0.14s ease;
+    user-select: none;
+  }
+  .side-link:hover { background: var(--card-hover); color: var(--ink); }
+  .side-link.active {
+    background: var(--orange-soft);
+    border-color: var(--orange);
+    color: var(--orange);
+  }
+  .side-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-faint);
+    flex-shrink: 0;
+    width: 18px;
+    text-align: right;
+  }
+  .side-link.active .side-num { color: var(--orange); }
+
+  .panel { min-width: 0; }
+
+  .panel-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 10px;
+  }
+  .panel h1 {
+    font-family: 'Chakra Petch', sans-serif;
+    font-weight: 700;
+    font-size: clamp(26px, 4vw, 34px);
+    letter-spacing: -0.01em;
+    margin: 0 0 12px;
+    color: var(--ink);
+  }
+  .panel-intro {
+    color: var(--ink-soft);
+    font-size: 14.5px;
+    line-height: 1.65;
+    margin: 0 0 22px;
+    max-width: 680px;
+  }
+
+  .term-switch {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    padding: 6px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    width: fit-content;
+    margin-bottom: 8px;
+  }
+  .term-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    padding: 6px 13px;
+    border-radius: 999px;
+    border: none;
+    background: transparent;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: background 0.14s ease, color 0.14s ease;
+    white-space: nowrap;
+  }
+  .term-btn:hover { color: var(--ink); }
+  .term-btn.active { background: var(--cyan-soft); color: var(--cyan); }
+  .term-note {
+    font-size: 12px;
+    color: var(--ink-faint);
+    margin: 0 0 26px;
+    font-style: italic;
+  }
+
+  .keypoints {
+    background: var(--cyan-soft);
+    border: 1px solid var(--cyan);
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 30px;
+  }
+  .keypoints-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 10px;
+  }
+  .keypoints ul { margin: 0; padding-left: 18px; }
+  .keypoints li {
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    line-height: 1.7;
+  }
+
+  .callout {
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin: 22px 0;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .callout.warn {
+    background: var(--orange-soft);
+    border: 1px solid var(--orange);
+    color: var(--ink);
+  }
+  .callout.warn strong { color: var(--orange); }
+  .callout.info {
+    background: rgba(143,163,201,0.08);
+    border: 1px solid var(--line);
+    color: var(--ink-soft);
+  }
+  .callout.info strong { color: var(--ink); }
+
+  .g-step {
+    position: relative;
+    padding-left: 46px;
+    margin-bottom: 26px;
+  }
+  .g-step-num {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--orange-soft);
+    border: 1.5px solid var(--orange);
+    color: var(--orange);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Chakra Petch', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .g-step-body { padding-top: 3px; }
+  .g-step h3 {
+    font-family: 'Chakra Petch', sans-serif;
+    font-weight: 600;
+    font-size: 16px;
+    margin: 0 0 6px;
+    color: var(--ink);
+  }
+  .g-step p {
+    font-size: 13.5px;
+    line-height: 1.65;
+    color: var(--ink-soft);
+    margin: 0 0 10px;
+  }
+  .g-step p:last-child { margin-bottom: 0; }
+  .g-step code.inline,
+  .panel-intro code.inline,
+  .callout code.inline,
+  .keypoints code.inline {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    background: var(--void-deep);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 1px 5px;
+    color: #C9E8D8;
+  }
+
+  .g-cmd {
+    background: var(--void-deep);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 11px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: #C9E8D8;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .g-cmd pre {
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    flex: 1;
+    line-height: 1.55;
+  }
+  .g-cmd .cmt { color: var(--ink-faint); }
+  .copy-btn {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--line);
+    color: var(--ink-soft);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    padding: 4px 9px;
+    border-radius: 6px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.12); color: var(--ink); }
+  .copy-btn.copied { color: var(--cyan); border-color: var(--cyan); }
+
+  /* comparison table (optional, used via a step's `table` field) */
+  .g-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin: 4px 0 8px;
+  }
+  .g-table th, .g-table td {
+    text-align: left;
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  .g-table th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .g-table td { color: var(--ink-soft); line-height: 1.55; }
+  .g-table td strong { color: var(--ink); }
+  .g-table td.k {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--cyan);
+    white-space: nowrap;
+  }
+
+  .topic { display: none; }
+  .topic.active { display: block; animation: fade 0.25s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  .mobile-nav { display: none; }
+
+  @media (max-width: 860px) {
+    .guide-shell { grid-template-columns: 1fr; }
+    .side { display: none; }
+    .mobile-nav { display: block; margin-bottom: 22px; }
+    .mobile-nav select {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--ink);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      padding: 12px 14px;
+      outline: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .topic.active { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-field"></div>
+
+<div class="nav">
+  <a class="nav-brand" href="/index.html">
+    <img src="/assets/cts-mark-logo.png" alt="Creative Tech Studio logo">
+    <span>Creative Tech Studio</span>
+  </a>
+  <a class="back-link" href="/index.html">← All Roadmaps</a>
+</div>
+
+<div class="guide-shell">
+
+  <aside class="side" id="side">
+    <!-- EDIT: sidebar label -->
+    <div class="side-title">[Guide Name]</div>
+  </aside>
+
+  <main class="panel">
+    <div class="panel-eyebrow">Reference Guide</div>
+    <!-- EDIT: main heading -->
+    <h1>[Guide Title]</h1>
+    <!-- EDIT: intro paragraph -->
+    <p class="panel-intro">[One or two sentences describing what this guide covers and who it's for. End with: "Pick a topic from the sidebar. Commands adapt to your terminal below."]</p>
+
+    <div class="term-switch" id="term-switch">
+      <button class="term-btn active" data-term="unix">macOS / Linux</button>
+      <button class="term-btn" data-term="gitbash">Git Bash</button>
+      <button class="term-btn" data-term="powershell">PowerShell</button>
+      <button class="term-btn" data-term="cmd">Windows CMD</button>
+    </div>
+    <p class="term-note" id="term-note">Most commands are identical across terminals — only a few native shell commands differ. Those swap automatically.</p>
+
+    <div class="mobile-nav">
+      <select id="mobile-select"></select>
+    </div>
+
+    <div id="topics"></div>
+  </main>
+
+</div>
+
+<footer>CREATIVE TECH STUDIO — CODE'S ROADMAP</footer>
+
+<script>
+(function () {
+
+  /* ── Terminal-specific shell command variants ──
+     Regular git/npm/wrangler commands never change — use { code: '…' } for those.
+     Only NATIVE shell commands differ. Add an entry here per shell command you
+     need, then reference it in a step as { shell: 'name', args: [...] }.
+     One example ('setenv') is provided. Delete it if unused. */
+  const SHELL = {
+    setenv: {
+      unix:       (name, val) => `export ${name}="${val}"`,
+      gitbash:    (name, val) => `export ${name}="${val}"`,
+      powershell: (name, val) => `$env:${name} = "${val}"`,
+      cmd:        (name, val) => `set ${name}=${val}`,
+    },
+  };
+
+  let term = 'unix';
+
+  /* ── EDIT: Guide content ──
+     Replace these sample topics with your own. See the comment block at the
+     top of this file for the full shape of a topic / step / command / table. */
+  const TOPICS = [
+    {
+      id: 'sample-explain',
+      group: 'First section',
+      title: 'A pure-explanation topic',
+      intro: 'Use this shape when a topic just explains a concept and has no commands — leave steps as an empty array, or use steps with only a title + body.',
+      keypoints: [
+        'Key points render as this cyan callout — great for the 2–3 things to remember.',
+        'You can use <code class="inline">inline code</code> anywhere in this text.',
+      ],
+      steps: [
+        {
+          title: 'A concept, explained',
+          body: 'A step with a body but no commands. Good for breaking an explanation into labelled parts.',
+          cmds: [],
+        },
+        {
+          title: 'A step with a comparison table',
+          body: 'Steps can include a table — useful for "which option do I pick" topics.',
+          table: {
+            head: ['Option', 'Use it for', 'Note'],
+            rows: [
+              ['<td class="k">Option A</td>', '<strong>This case.</strong> When you need X.', 'Some caveat'],
+              ['<td class="k">Option B</td>', '<strong>That case.</strong> When you need Y.', 'Another caveat'],
+            ],
+          },
+          cmds: [],
+        },
+      ],
+    },
+    {
+      id: 'sample-commands',
+      group: 'First section',
+      title: 'A command topic',
+      intro: 'Use this shape for how-to topics with actual commands to run.',
+      keypoints: [
+        'Every command gets a copy button automatically.',
+        'Add a <code class="inline"># comment</code> to a command with the comment field.',
+      ],
+      steps: [
+        {
+          title: 'Run a normal command',
+          body: 'Commands that are the same on every terminal use the code field.',
+          cmds: [
+            { code: 'npm install' },
+            { code: 'npm run build', comment: 'this one has a comment' },
+          ],
+        },
+        {
+          title: 'A command that differs per terminal',
+          body: 'This one uses the SHELL table so it rewrites when the terminal switches. Try the switcher above.',
+          cmds: [
+            { shell: 'setenv', args: ['API_KEY', 'your-value-here'], comment: 'set an environment variable' },
+          ],
+        },
+        {
+          title: 'A step with a warning',
+          body: 'Callouts come in two styles: info (neutral) and warn (orange).',
+          cmds: [],
+          callout: { type: 'warn', html: '<strong>Be careful.</strong> Use warn callouts for destructive or irreversible actions.' },
+        },
+      ],
+    },
+    {
+      id: 'sample-second-group',
+      group: 'Second section',
+      title: 'Topics group automatically',
+      intro: 'Give topics a different group value and they appear under a new sidebar heading. Groups show up in the order they first appear in this array.',
+      steps: [],
+    },
+  ];
+
+  /* ── Build sidebar + mobile select ── */
+  const sideEl = document.getElementById('side');
+  const topicsEl = document.getElementById('topics');
+  const mobileSelect = document.getElementById('mobile-select');
+
+  const groups = [];
+  TOPICS.forEach((t) => {
+    let g = groups.find(x => x.name === t.group);
+    if (!g) { g = { name: t.group, items: [] }; groups.push(g); }
+    g.items.push({ topic: t });
+  });
+
+  let globalIndex = 0;
+  groups.forEach(g => {
+    const groupEl = document.createElement('div');
+    groupEl.className = 'side-group';
+    groupEl.innerHTML = `<div class="side-group-label">${g.name}</div>`;
+    g.items.forEach(({ topic }) => {
+      const n = ++globalIndex;
+      const link = document.createElement('div');
+      link.className = 'side-link';
+      link.dataset.target = topic.id;
+      link.innerHTML = `<span class="side-num">${String(n).padStart(2,'0')}</span><span>${topic.title}</span>`;
+      link.addEventListener('click', () => selectTopic(topic.id));
+      groupEl.appendChild(link);
+    });
+    sideEl.appendChild(groupEl);
+
+    const og = document.createElement('optgroup');
+    og.label = g.name;
+    g.items.forEach(({ topic }) => {
+      const opt = document.createElement('option');
+      opt.value = topic.id;
+      opt.textContent = topic.title;
+      og.appendChild(opt);
+    });
+    mobileSelect.appendChild(og);
+  });
+  mobileSelect.addEventListener('change', (e) => selectTopic(e.target.value));
+
+  function cmdCode(cmd) {
+    if (cmd.code != null) return cmd.code;
+    return SHELL[cmd.shell][term](...cmd.args);
+  }
+
+  function renderTopics() {
+    topicsEl.innerHTML = '';
+    TOPICS.forEach(topic => {
+      const el = document.createElement('section');
+      el.className = 'topic';
+      el.id = 'topic-' + topic.id;
+      el.dataset.id = topic.id;
+
+      const kp = topic.keypoints ? `
+        <div class="keypoints">
+          <div class="keypoints-title">Key points</div>
+          <ul>${topic.keypoints.map(k => `<li>${k}</li>`).join('')}</ul>
+        </div>` : '';
+
+      const steps = (topic.steps || []).map((s, i) => {
+        const cmds = (s.cmds || []).map(c => {
+          const code = cmdCode(c);
+          const cmt = c.comment ? `<span class="cmt"># ${escapeHtml(c.comment)}</span>\n` : '';
+          return `<div class="g-cmd"><pre>${cmt}${escapeHtml(code)}</pre><button class="copy-btn" data-copy="${encodeURIComponent(code)}">copy</button></div>`;
+        }).join('');
+
+        let tableHtml = '';
+        if (s.table) {
+          const head = s.table.head.map(h => `<th>${h}</th>`).join('');
+          const rows = s.table.rows.map(r => `<tr>${r.join('')}</tr>`).join('');
+          tableHtml = `<table class="g-table"><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table>`;
+        }
+
+        const callout = s.callout ? `<div class="callout ${s.callout.type}">${s.callout.html}</div>` : '';
+        const body = s.body ? `<p>${s.body}</p>` : '';
+        return `
+          <div class="g-step">
+            <div class="g-step-num">${i + 1}</div>
+            <div class="g-step-body">
+              <h3>${escapeHtml(s.title)}</h3>
+              ${body}
+              ${tableHtml}
+              ${cmds}
+              ${callout}
+            </div>
+          </div>`;
+      }).join('');
+
+      el.innerHTML = `
+        <div class="panel-eyebrow">${escapeHtml(topic.group)}</div>
+        <h1 style="font-size:clamp(24px,3.4vw,30px); margin-bottom:10px;">${escapeHtml(topic.title)}</h1>
+        <p class="panel-intro">${topic.intro}</p>
+        ${kp}
+        ${steps}
+      `;
+      topicsEl.appendChild(el);
+    });
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  let currentId = TOPICS[0].id;
+  function selectTopic(id) {
+    currentId = id;
+    document.querySelectorAll('.topic').forEach(t => t.classList.toggle('active', t.dataset.id === id));
+    document.querySelectorAll('.side-link').forEach(l => l.classList.toggle('active', l.dataset.target === id));
+    if (mobileSelect.value !== id) mobileSelect.value = id;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    history.replaceState(null, '', '#' + id);
+  }
+
+  document.getElementById('term-switch').addEventListener('click', (e) => {
+    const btn = e.target.closest('.term-btn');
+    if (!btn) return;
+    term = btn.dataset.term;
+    document.querySelectorAll('.term-btn').forEach(b => b.classList.toggle('active', b === btn));
+    renderTopics();
+    selectTopic(currentId);
+  });
+
+  topicsEl.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-copy]');
+    if (!btn) return;
+    const text = decodeURIComponent(btn.getAttribute('data-copy'));
+    const done = () => {
+      const original = btn.textContent;
+      btn.textContent = 'copied';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = original; btn.classList.remove('copied'); }, 1200);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(done);
+    } else { done(); }
+  });
+
+  renderTopics();
+  const fromHash = location.hash.replace('#', '');
+  selectTopic(TOPICS.some(t => t.id === fromHash) ? fromHash : TOPICS[0].id);
+})();
+</script>
+
+</body>
+</html>

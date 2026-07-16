@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Build a Full-Stack App on Cloudflare Workers — Code's Roadmap</title>
+<link rel="stylesheet" href="/assets/styles.css">
+<style>
+  /* This roadmap has several multi-line code blocks that are taller than
+     the shared 400px allowance, so give this page's expanded stops more room. */
+  .stop.expanded .stop-detail { max-height: 900px; }
+</style>
+</head>
+<body>
+
+<div class="bg-field"></div>
+
+<div class="nav">
+  <a class="nav-brand" href="../index.html">
+    <img src="assets/ctslogo.png" alt="Creative Tech Studio logo">
+    <span>Creative Tech Studio</span>
+  </a>
+  <a class="back-link" href="../index.html">← All Roadmaps</a>
+</div>
+
+<div class="wrap wrap--trail">
+
+  <div class="trail-header">
+    <div class="trail-eyebrow">12 Steps To A Live Full-Stack App</div>
+    <h1 class="trail-title">Build a Full-Stack App on Cloudflare Workers</h1>
+    <p class="trail-sub">Build a Full-Stack React App on Cloudflare Workers with a worker backend, and a database, all deployed together. Tap any step for intructions.</p>
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span id="progress-text">0 / 11 cleared</span>
+        <span id="progress-pct">0%</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+    </div>
+    <div class="legend">
+      <span>⚪ local only</span>
+      <span>🟠 creates something in Cloudflare</span>
+      <span>⚪ manual dashboard step</span>
+    </div>
+  </div>
+
+  <div class="trail">
+    <div class="trail-spine"></div>
+    <div id="stops"></div>
+  </div>
+
+  <div class="summit-banner" id="summit-banner">🏔️ Summit reached — your app is live. Go visit its URL.</div>
+
+  <div class="reset-row">
+    <button class="reset-btn" id="reset-btn">reset progress</button>
+  </div>
+</div>
+
+<footer>CREATIVE TECH STUDIO — CODE'S ROADMAP</footer>
+
+<script>
+(function () {
+
+  const PROGRESS_KEY = 'roadmap-progress--fullstack-cloudflare';
+
+  const STEPS = [
+    {
+      id: 'scaffold',
+      name: 'Start a React + TypeScript project with Vite.',
+      title: 'Scaffold the frontend',
+      badge: 'local',
+      badgeLabel: 'nothing created yet',
+      desc: 'At this point it is just a folder on your machine',
+      commands: ['npm create vite@latest my-app -- --template react-ts', 'cd my-app', 'npm install'],
+    },
+    {
+      id: 'tooling',
+      name: "Install Wrangler (Cloudflare's CLI)",
+      title: 'Add Cloudflare tooling',
+      badge: 'local',
+      badgeLabel: 'local only',
+      desc: "Vite plugin that runs a Worker alongside your frontend during development, and the TypeScript types for the Workers runtime.",
+      commands: ['npm install -D wrangler @cloudflare/vite-plugin @cloudflare/workers-types'],
+    },
+    {
+      id: 'wireup',
+      name: 'Pitch camp',
+      title: 'Wire a Worker into Vite',
+      badge: 'local',
+      badgeLabel: 'still nothing in your account',
+      desc: 'Create wrangler.jsonc pointing at a Worker entry file, add the cloudflare() plugin to vite.config.ts, and write a one-line Worker so you have something to run. The assets block tells Cloudflare to serve your built frontend and route API paths to the Worker.',
+      commands: [
+        '// wrangler.jsonc\n{\n  "name": "my-app",\n  "compatibility_date": "2026-07-15",\n  "main": "./worker/index.ts",\n  "assets": { "not_found_handling": "single-page-application", "run_worker_first": ["/api/*"] }\n}',
+        '// vite.config.ts\nimport { defineConfig } from "vite";\nimport react from "@vitejs/plugin-react";\nimport { cloudflare } from "@cloudflare/vite-plugin";\nexport default defineConfig({ plugins: [react(), cloudflare()] });',
+        '// worker/index.ts\nexport default {\n  async fetch() {\n    return new Response("Worker is running");\n  },\n};',
+      ],
+    },
+    {
+      id: 'login',
+      name: 'Sign the register',
+      title: 'Connect Wrangler to your account',
+      badge: 'local',
+      badgeLabel: 'authorizes CLI, creates nothing',
+      desc: 'Opens a browser to log in and link the CLI to your Cloudflare account. Still no resources created.',
+      commands: ['npx wrangler login'],
+    },
+    {
+      id: 'createdb',
+      name: 'First cairn',
+      title: 'Create the database',
+      badge: 'cloud',
+      badgeLabel: 'creates a real resource',
+      desc: 'This is the first thing that actually gets created in your Cloudflare account: a D1 (SQLite) database. Wrangler prints a database_id you will need in the next step.',
+      commands: ['npx wrangler d1 create my-app-db'],
+    },
+    {
+      id: 'schema',
+      name: 'Mark the map',
+      title: 'Define and apply the schema',
+      badge: 'cloud',
+      badgeLabel: 'creates tables in your database',
+      desc: 'Write a schema.sql file with the tables your app needs. Add a d1_databases block to wrangler.jsonc with the database_id from the previous step, then apply the schema — once to the local emulation, once to the real remote database.',
+      commands: [
+        'npx wrangler d1 execute my-app-db --local --file=./schema.sql',
+        'npx wrangler d1 execute my-app-db --remote --file=./schema.sql',
+      ],
+    },
+    {
+      id: 'api',
+      name: 'Cut the trail',
+      title: 'Build the API',
+      badge: 'local',
+      badgeLabel: 'code only, nothing deployed yet',
+      desc: 'In your Worker, write handler functions for each thing your app needs to do — typically create, read, update, and delete — where each one runs a query against your D1 database. Then route incoming requests to the right handler by matching the URL path and HTTP method inside the fetch handler.',
+    },
+    {
+      id: 'ui',
+      name: 'Build the shelter',
+      title: 'Build the frontend',
+      badge: 'local',
+      badgeLabel: 'local only',
+      desc: 'Build your React components and have them call your API endpoints with fetch. Add whatever libraries your interface needs — for example a styling framework like Tailwind, shown below.',
+      commands: [
+        'npm install -D tailwindcss postcss autoprefixer\nnpx tailwindcss init -p',
+      ],
+    },
+    {
+      id: 'testlocal',
+      name: 'Scout the route',
+      title: 'Test it locally',
+      badge: 'local',
+      badgeLabel: 'runs only on your machine',
+      desc: 'The Vite plugin runs your Worker inside a real local emulation of the Workers runtime, connected to your D1 binding — so local development behaves like production.',
+      commands: ['npm run dev'],
+    },
+    {
+      id: 'deploy',
+      name: 'Reach the summit',
+      title: 'Deploy',
+      badge: 'cloud',
+      badgeLabel: 'creates the live Worker',
+      desc: 'Add a deploy script ("deploy": "vite build && wrangler deploy") to package.json, then run it. This is the step that actually creates the Worker in your account and puts your app on the internet at a *.workers.dev URL.',
+      commands: ['npm run deploy'],
+    },
+    {
+      id: 'access',
+      name: 'Lock the gate',
+      title: 'Restrict access (optional)',
+      badge: 'manual',
+      badgeLabel: 'done by hand in the dashboard',
+      desc: 'If your app is meant for just you or a specific group, put Cloudflare Access in front of it in the dashboard — no auth code required. Skip this step for a public app.',
+      manualSteps: [
+        'Zero Trust → Access → Applications → Add an application → Self-hosted',
+        "Set the domain to your Worker's *.workers.dev URL (or a custom domain)",
+        'Add a policy that allows only the email addresses you choose',
+        'Save',
+      ],
+    },
+    {
+      id: 'arrive',
+      name: "You've arrived",
+      title: 'Visit your live app',
+      badge: 'done',
+      badgeLabel: 'live',
+      desc: "Open your Worker's URL. Your full-stack app — frontend, API, and database — is now live on Cloudflare's network.",
+    },
+  ];
+
+  const stopsEl = document.getElementById('stops');
+  const progressFill = document.getElementById('progress-fill');
+  const progressText = document.getElementById('progress-text');
+  const progressPct = document.getElementById('progress-pct');
+  const summitBanner = document.getElementById('summit-banner');
+  const resetBtn = document.getElementById('reset-btn');
+
+  let completed = new Set();
+  let expanded = new Set();
+
+  function badgeIcon(badge) {
+    if (badge === 'cloud') return '🟠';
+    if (badge === 'manual') return '⚪';
+    if (badge === 'done') return '🎉';
+    return '⚪';
+  }
+
+  function render() {
+    stopsEl.innerHTML = '';
+    const firstIncompleteIdx = STEPS.findIndex(s => !completed.has(s.id));
+
+    STEPS.forEach((step, i) => {
+      const isCleared = completed.has(step.id);
+      const isCurrent = !isCleared && i === firstIncompleteIdx;
+      const isExpanded = expanded.has(step.id) || isCurrent;
+      const isLast = i === STEPS.length - 1;
+
+      const stopEl = document.createElement('div');
+      stopEl.className = 'stop' + (isCleared ? ' cleared' : '') + (isCurrent ? ' current' : '') + (isExpanded ? ' expanded' : '');
+
+      const cmdHtml = (step.commands || []).map((c) =>
+        `<div class="cmd-block">
+          <pre>${escapeHtml(c)}</pre>
+          <button class="copy-btn" data-copy="${encodeURIComponent(c)}">copy</button>
+        </div>`
+      ).join('');
+
+      const manualHtml = step.manualSteps
+        ? `<ol class="manual-list">${step.manualSteps.map(m => `<li>${escapeHtml(m)}</li>`).join('')}</ol>`
+        : '';
+
+      stopEl.innerHTML = `
+        <div class="stop-marker" data-toggle="${step.id}">${isCleared ? '✓' : i + 1}</div>
+        <div class="stop-card" data-toggle="${step.id}">
+          <div class="stop-card-head">
+            <div>
+              <div class="stop-title-row">
+                <span class="stop-title">${escapeHtml(step.title)}</span>
+                ${step.name ? `<span class="stop-name">${escapeHtml(step.name)}</span>` : ''}
+              </div>
+              <span class="badge ${step.badge}">${badgeIcon(step.badge)} ${escapeHtml(step.badgeLabel)}</span>
+            </div>
+            <span class="chevron">▸</span>
+          </div>
+          <div class="stop-detail">
+            <div class="stop-detail-inner">
+              <p class="stop-desc">${escapeHtml(step.desc)}</p>
+              ${cmdHtml}
+              ${manualHtml}
+              ${!isLast ? `
+                <div class="clear-row" data-clear-row>
+                  <div class="clear-check ${isCleared ? 'on' : ''}" data-clear="${step.id}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+                  </div>
+                  <label class="clear-label" data-clear="${step.id}">Mark cleared</label>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+      stopsEl.appendChild(stopEl);
+    });
+
+    // progress (counts everything except the final step)
+    const trackedCount = STEPS.length - 1;
+    const doneCount = completed.size;
+    const pct = trackedCount > 0 ? Math.round((doneCount / trackedCount) * 100) : 0;
+    progressFill.style.width = pct + '%';
+    progressText.textContent = doneCount + ' / ' + trackedCount + ' cleared';
+    progressPct.textContent = pct + '%';
+    summitBanner.classList.toggle('show', doneCount === trackedCount && trackedCount > 0);
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  stopsEl.addEventListener('click', (e) => {
+    const clearTarget = e.target.closest('[data-clear]');
+    if (clearTarget) {
+      e.stopPropagation();
+      const id = clearTarget.getAttribute('data-clear');
+      if (completed.has(id)) completed.delete(id); else completed.add(id);
+      saveProgress();
+      render();
+      return;
+    }
+
+    const copyTarget = e.target.closest('[data-copy]');
+    if (copyTarget) {
+      e.stopPropagation();
+      const text = decodeURIComponent(copyTarget.getAttribute('data-copy'));
+      copyToClipboard(text, copyTarget);
+      return;
+    }
+
+    const toggleTarget = e.target.closest('[data-toggle]');
+    if (toggleTarget) {
+      const id = toggleTarget.getAttribute('data-toggle');
+      if (expanded.has(id)) expanded.delete(id); else expanded.add(id);
+      render();
+    }
+  });
+
+  function copyToClipboard(text, btn) {
+    const done = () => {
+      const original = btn.textContent;
+      btn.textContent = 'copied';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = original;
+        btn.classList.remove('copied');
+      }, 1200);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(done);
+    } else {
+      done();
+    }
+  }
+
+  resetBtn.addEventListener('click', () => {
+    completed = new Set();
+    expanded = new Set();
+    saveProgress();
+    render();
+  });
+
+  function loadProgress() {
+    try {
+      const raw = localStorage.getItem(PROGRESS_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed.completed)) completed = new Set(parsed.completed);
+      }
+    } catch (e) {
+      // no saved progress yet, or storage unavailable
+    }
+    render();
+  }
+
+  function saveProgress() {
+    try {
+      localStorage.setItem(PROGRESS_KEY, JSON.stringify({ completed: Array.from(completed) }));
+    } catch (e) {
+      console.error('Could not save progress', e);
+    }
+  }
+
+  loadProgress();
+})();
+</script>
+
+</body>
+</html>

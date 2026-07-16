@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design System — Code's Roadmap</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --void: #0A1220;
+    --card: #101B31;
+    --card-hover: #16233F;
+    --line: #223257;
+    --line-bright: #33507F;
+    --ink: #EDF3FF;
+    --ink-soft: #8FA3C9;
+    --ink-faint: #4E5F82;
+    --orange: #FF6B2C;
+    --orange-soft: rgba(255, 107, 44, 0.14);
+    --cyan: #2FE6E6;
+    --cyan-soft: rgba(47, 230, 230, 0.14);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--void);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.6;
+  }
+
+  .wrap {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 60px 24px 120px;
+  }
+
+  /* ---------- doc header ---------- */
+  .doc-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .doc-top img { height: 24px; }
+  .doc-top span {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  .doc-title {
+    font-family: 'Chakra Petch', sans-serif;
+    font-weight: 700;
+    font-size: clamp(30px, 5vw, 42px);
+    margin: 6px 0 10px;
+    background: linear-gradient(100deg, var(--orange) 0%, var(--ink) 45%, var(--cyan) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .doc-sub {
+    color: var(--ink-soft);
+    font-size: 15px;
+    max-width: 620px;
+    margin: 0 0 8px;
+  }
+
+  .version-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--cyan);
+    background: var(--cyan-soft);
+    border: 1px solid var(--cyan);
+    padding: 4px 10px;
+    border-radius: 999px;
+    margin-top: 8px;
+  }
+
+  /* ---------- toc ---------- */
+  .toc {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 32px 0 0;
+    padding: 16px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+  }
+  .toc a {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    text-decoration: none;
+    padding: 5px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    transition: all 0.15s ease;
+  }
+  .toc a:hover { color: var(--ink); border-color: var(--line-bright); }
+
+  /* ---------- sections ---------- */
+  section { margin-top: 72px; scroll-margin-top: 24px; }
+
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-bottom: 8px;
+  }
+  .section-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--orange);
+  }
+  .section-head h2 {
+    font-family: 'Chakra Petch', sans-serif;
+    font-weight: 600;
+    font-size: 24px;
+    margin: 0;
+  }
+  .section-desc {
+    color: var(--ink-soft);
+    font-size: 14px;
+    max-width: 640px;
+    margin: 0 0 28px;
+  }
+
+  /* ---------- color swatches ---------- */
+  .swatch-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 14px;
+  }
+  .swatch {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--card);
+  }
+  .swatch-color { height: 64px; }
+  .swatch-meta { padding: 12px 14px; }
+  .swatch-name {
+    font-family: 'Chakra Petch', sans-serif;
+    font-weight: 600;
+    font-size: 13.5px;
+  }
+  .swatch-hex {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-faint);
+    margin-top: 2px;
+  }
+  .swatch-use {
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    margin-top: 6px;
+  }
+
+  /* ---------- type specimens ---------- */
+  .type-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--line);
+    flex-wrap: wrap;
+  }
+  .type-row:first-child { padding-top: 0; }
+  .type-sample.display {
+    font-family: 'Chakra Petch', sans-serif;
+    font-weight: 700;
+  }
+  .type-sample.body { font-family: 'Inter', sans-serif; }
+  .type-sample.mono { font-family: 'JetBrains Mono', monospace; }
+  .type-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-faint);
+    white-space: nowrap;
+    min-width: 190px;
+  }
+
+  /* ---------- spacing tokens ---------- */
+  .space-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .space-bar {
+    height: 10px;
+    background: linear-gradient(90deg, var(--orange), var(--cyan));
+    border-radius: 3px;
+  }
+  .space-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-soft);
+    width: 90px;
+    flex-shrink: 0;
+  }
+  .space-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-faint);
+    width: 46px;
+  }
+
+  /* ---------- component previews ---------- */
+  .preview-block {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 18px;
+  }
+  .preview-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 16px;
+  }
+
+  /* mini card component (mirrors index.html) */
+  .mini-card {
+    position: relative;
+    background: var(--card-hover);
+    border: 1px solid var(--line-bright);
+    border-radius: 10px;
+    padding: 18px 18px 16px;
+    max-width: 280px;
+    overflow: hidden;
+  }
+  .mini-card::before {
+    content: '';
+    position: absolute;
+    top: -1px; right: -1px;
+    width: 30px; height: 30px;
+    border-top: 2px solid var(--mc-accent, var(--cyan));
+    border-right: 2px solid var(--mc-accent, var(--cyan));
+    border-radius: 0 10px 0 0;
+    opacity: 0.55;
+  }
+  .mini-card.orange { --mc-accent: var(--orange); }
+  .mini-card .card-icon {
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    background: color-mix(in srgb, var(--mc-accent, var(--cyan)) 16%, transparent);
+    border: 1px solid var(--mc-accent, var(--cyan));
+    margin-bottom: 10px;
+    font-size: 14px;
+  }
+  .mini-card h4 {
+    font-family: 'Chakra Petch', sans-serif;
+    font-size: 15px;
+    margin: 0 0 4px;
+  }
+  .mini-card p { font-size: 12.5px; color: var(--ink-soft); margin: 0; }
+
+  .pill-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .diff {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 999px;
+    display: inline-block;
+  }
+  .diff.beginner { background: var(--cyan-soft); color: var(--cyan); }
+  .diff.intermediate { background: var(--orange-soft); color: var(--orange); }
+  .diff.locked { background: rgba(143,163,201,0.1); color: var(--ink-faint); }
+
+  .filter-pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--card);
+    color: var(--ink-soft);
+    display: inline-block;
+  }
+  .filter-pill.active {
+    background: var(--orange-soft);
+    border-color: var(--orange);
+    color: var(--orange);
+  }
+
+  /* search box (mirrors index.html) */
+  .search-wrap-demo {
+    position: relative;
+    max-width: 340px;
+  }
+  .search-icon-demo {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--ink-faint);
+    font-size: 14px;
+    pointer-events: none;
+  }
+  .search-input-demo {
+    width: 100%;
+    background: var(--void);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 12px 40px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13.5px;
+    color: var(--ink);
+    outline: none;
+  }
+  .search-input-demo::placeholder { color: var(--ink-faint); }
+  .search-clear-demo {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: none;
+    background: var(--line);
+    color: var(--ink-faint);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  mark {
+    background: var(--orange-soft);
+    color: var(--orange);
+    border-radius: 3px;
+    padding: 0 2px;
+  }
+
+  /* ---------- do / don't ---------- */
+  .dd-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .dd-card {
+    border-radius: 10px;
+    padding: 18px 20px;
+    border: 1px solid var(--line);
+  }
+  .dd-card.do { background: var(--cyan-soft); border-color: var(--cyan); }
+  .dd-card.dont { background: var(--orange-soft); border-color: var(--orange); }
+  .dd-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+    display: block;
+  }
+  .dd-card.do .dd-tag { color: var(--cyan); }
+  .dd-card.dont .dd-tag { color: var(--orange); }
+  .dd-card p { font-size: 13px; color: var(--ink-soft); margin: 0; }
+
+  /* ---------- code block ---------- */
+  pre.code-block {
+    background: #060B15;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #C9E8D8;
+    line-height: 1.6;
+  }
+
+  /* ---------- checklist ---------- */
+  .checklist { list-style: none; padding: 0; margin: 0; }
+  .checklist li {
+    display: flex;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 13.5px;
+    color: var(--ink-soft);
+  }
+  .checklist li::before {
+    content: '□';
+    color: var(--orange);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  th, td {
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line);
+  }
+  th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  td { color: var(--ink-soft); }
+  td.mono { font-family: 'JetBrains Mono', monospace; color: var(--ink); font-size: 12px; }
+
+  @media (max-width: 640px) {
+    .dd-grid { grid-template-columns: 1fr; }
+    .type-row { flex-direction: column; align-items: flex-start; gap: 6px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="doc-top">
+    <img src="assets/ctslogo.png" alt="CTS logo">
+    <span>Creative Tech Studio</span>
+  </div>
+  <h1 class="doc-title">Design System</h1>
+  <p class="doc-sub">The visual language for Code's Roadmap — every color, type rule, and component used across the site, so new roadmap pages stay consistent without re-deciding anything.</p>
+  <span class="version-tag">● v1.0 — homepage baseline</span>
+
+  <nav class="toc">
+    <a href="#colors">Color</a>
+    <a href="#type">Typography</a>
+    <a href="#spacing">Spacing</a>
+    <a href="#components">Components</a>
+    <a href="#patterns">Layout Patterns</a>
+    <a href="#voice">Voice &amp; Copy</a>
+    <a href="#rules">Do / Don't</a>
+    <a href="#build">Building a New Page</a>
+  </nav>
+
+  <!-- COLOR -->
+  <section id="colors">
+    <div class="section-head"><span class="section-num">01</span><h2>Color</h2></div>
+    <p class="section-desc">Pulled directly from the CTS logo — orange and cyan as the two accent tracks on a near-black tech background. Never mix in colors outside this set.</p>
+
+    <div class="swatch-grid">
+      <div class="swatch">
+        <div class="swatch-color" style="background:#0A1220;"></div>
+        <div class="swatch-meta">
+          <div class="swatch-name">Void</div>
+          <div class="swatch-hex">#0A1220</div>
+          <div class="swatch-use">Page background</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#101B31;"></div>
+        <div class="swatch-meta">
+          <div class="swatch-name">Card</div>
+          <div class="swatch-hex">#101B31</div>
+          <div class="swatch-use">Card / panel surfaces</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#223257;"></div>
+        <div class="swatch-meta">
+          <div class="swatch-name">Line</div>
+          <div class="swatch-hex">#223257</div>
+          <div class="swatch-use">Borders, dividers</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#EDF3FF;"></div>
+        <div class="swatch-meta">
+          <div class="swatch-name">Ink</div>
+          <div class="swatch-hex">#EDF3FF</div>
+          <div class="swatch-use">Primary text</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#8FA3C9;"></div>
+        <div class="swatch-meta">
+          <div class="swatch-name">Ink Soft</div>
+          <div class="swatch-hex">#8FA3C9</div>
+          <div class="swatch-use">Body copy, descriptions</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#FF6B2C;"></div>
+        <div class="swatch-meta">
+          <div class="swatch-name">Signal Orange</div>
+          <div class="swatch-hex">#FF6B2C</div>
+          <div class="swatch-use">Primary accent, intermediate tag</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#2FE6E6;"></div>
+        <div class="swatch-meta">
+          <div class="swatch-name">Signal Cyan</div>
+          <div class="swatch-hex">#2FE6E6</div>
+          <div class="swatch-use">Secondary accent, beginner tag</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TYPOGRAPHY -->
+  <section id="type">
+    <div class="section-head"><span class="section-num">02</span><h2>Typography</h2></div>
+    <p class="section-desc">Three fonts, three jobs. Never substitute or add a fourth.</p>
+
+    <div class="type-row">
+      <span class="type-label">Chakra Petch 700 · Display</span>
+      <span class="type-sample display" style="font-size:32px;">Code's Roadmap</span>
+    </div>
+    <div class="type-row">
+      <span class="type-label">Chakra Petch 600 · Section head</span>
+      <span class="type-sample display" style="font-size:22px; font-weight:600;">Web Basics</span>
+    </div>
+    <div class="type-row">
+      <span class="type-label">Chakra Petch 600 · Card title</span>
+      <span class="type-sample display" style="font-size:16.5px; font-weight:600;">Build Your First Webpage</span>
+    </div>
+    <div class="type-row">
+      <span class="type-label">Inter 400 · Body</span>
+      <span class="type-sample body" style="font-size:14.5px; color:var(--ink-soft);">Go from a blank file to a real page online, using nothing but HTML and CSS.</span>
+    </div>
+    <div class="type-row">
+      <span class="type-label">JetBrains Mono 500 · Eyebrow / label</span>
+      <span class="type-sample mono" style="font-size:11.5px; letter-spacing:0.16em; text-transform:uppercase; color:var(--cyan);">Creative Tech Studio</span>
+    </div>
+    <div class="type-row">
+      <span class="type-label">JetBrains Mono 400 · Meta / counts</span>
+      <span class="type-sample mono" style="font-size:11px; color:var(--ink-faint);">6 steps · beginner</span>
+    </div>
+  </section>
+
+  <!-- SPACING -->
+  <section id="spacing">
+    <div class="section-head"><span class="section-num">03</span><h2>Spacing &amp; Radius</h2></div>
+    <p class="section-desc">An 8px rhythm. Card corners are always 10px, pills are always fully round.</p>
+
+    <div class="space-row"><span class="space-label">xs</span><span class="space-val">4px</span><div class="space-bar" style="width:4px;"></div></div>
+    <div class="space-row"><span class="space-label">sm</span><span class="space-val">8px</span><div class="space-bar" style="width:8px;"></div></div>
+    <div class="space-row"><span class="space-label">md</span><span class="space-val">16px</span><div class="space-bar" style="width:16px;"></div></div>
+    <div class="space-row"><span class="space-label">lg</span><span class="space-val">24px</span><div class="space-bar" style="width:24px;"></div></div>
+    <div class="space-row"><span class="space-label">xl</span><span class="space-val">40px</span><div class="space-bar" style="width:40px;"></div></div>
+    <div class="space-row"><span class="space-label">2xl</span><span class="space-val">64px</span><div class="space-bar" style="width:64px;"></div></div>
+
+    <table style="margin-top:24px;">
+      <tr><th>Element</th><th>Radius</th></tr>
+      <tr><td>Cards, panels</td><td class="mono">10px</td></tr>
+      <tr><td>Icon tiles</td><td class="mono">8px</td></tr>
+      <tr><td>Pills, badges, filters</td><td class="mono">999px (full)</td></tr>
+      <tr><td>Small buttons / copy chips</td><td class="mono">6–8px</td></tr>
+    </table>
+  </section>
+
+  <!-- COMPONENTS -->
+  <section id="components">
+    <div class="section-head"><span class="section-num">04</span><h2>Components</h2></div>
+    <p class="section-desc">Reusable pieces. Build new pages out of these rather than inventing new patterns.</p>
+
+    <div class="preview-block">
+      <div class="preview-label">Roadmap Card</div>
+      <div style="display:flex; gap:16px; flex-wrap:wrap;">
+        <div class="mini-card">
+          <div class="card-icon">◇</div>
+          <h4>Build Your First Webpage</h4>
+          <p>Go from a blank file to a real page online.</p>
+        </div>
+        <div class="mini-card orange">
+          <div class="card-icon">◆</div>
+          <h4>Python From Scratch</h4>
+          <p>Variables, loops, and functions.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="preview-block">
+      <div class="preview-label">Difficulty Tags</div>
+      <div class="pill-row">
+        <span class="diff beginner">Beginner</span>
+        <span class="diff intermediate">Intermediate</span>
+        <span class="diff locked">Coming soon</span>
+      </div>
+    </div>
+
+    <div class="preview-block">
+      <div class="preview-label">Search Bar</div>
+      <div class="search-wrap-demo">
+        <span class="search-icon-demo">⌕</span>
+        <input class="search-input-demo" type="text" value="python" readonly>
+        <button class="search-clear-demo">✕</button>
+      </div>
+      <p style="font-size:12.5px; color:var(--ink-soft); margin:14px 0 0;">
+        Matches against roadmap <strong>title</strong> and <strong>description</strong> text, live as you type. Matched text gets wrapped in
+        <mark>a highlight</mark> using the standard <code style="font-family:'JetBrains Mono',monospace;">orange-soft / orange</code> pairing —
+        never a new color.
+      </p>
+      <ul class="checklist" style="margin-top:12px;">
+        <li>Combines with the difficulty pills (AND, not OR) — search + filter narrow together</li>
+        <li>Empty categories collapse instead of showing a header with nothing under it</li>
+        <li>Zero matches shows a "No roadmaps match" state, never a blank page</li>
+        <li>Focus ring on <code style="font-family:'JetBrains Mono',monospace;">focus</code> is always cyan, matching the beginner accent</li>
+        <li><code style="font-family:'JetBrains Mono',monospace;">/</code> focuses the input, <code style="font-family:'JetBrains Mono',monospace;">Esc</code> clears it — same shortcut on every page that has search</li>
+      </ul>
+    </div>
+
+    <div class="preview-block">
+      <div class="preview-label">Filter Pills</div>
+      <div class="pill-row">
+        <span class="filter-pill active">All Paths</span>
+        <span class="filter-pill">Beginner</span>
+        <span class="filter-pill">Intermediate</span>
+      </div>
+    </div>
+
+    <div class="preview-block">
+      <div class="preview-label">Waypoint Marker (from roadmap detail pages)</div>
+      <div style="display:flex; gap:14px; align-items:center;">
+        <div style="width:44px; height:44px; border-radius:50%; background:var(--cyan-soft); border:2px solid var(--cyan); display:flex; align-items:center; justify-content:center; font-family:'Chakra Petch',sans-serif; font-weight:700; color:var(--cyan);">✓</div>
+        <div style="width:44px; height:44px; border-radius:50%; background:var(--orange-soft); border:2px solid var(--orange); display:flex; align-items:center; justify-content:center; font-family:'Chakra Petch',sans-serif; font-weight:700; color:var(--orange);">3</div>
+        <div style="width:44px; height:44px; border-radius:50%; background:var(--card); border:2px solid var(--line); display:flex; align-items:center; justify-content:center; font-family:'Chakra Petch',sans-serif; font-weight:700; color:var(--ink-faint);">4</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LAYOUT PATTERNS -->
+  <section id="patterns">
+    <div class="section-head"><span class="section-num">05</span><h2>Layout Patterns</h2></div>
+    <p class="section-desc">How pages are structured, at two zoom levels.</p>
+
+    <table>
+      <tr><th>Page type</th><th>Structure</th></tr>
+      <tr><td>Homepage</td><td>Logo bar → hero (eyebrow, gradient title, subtitle, search, filters) → category sections, each a labeled divider + card grid</td></tr>
+      <tr><td>Roadmap detail</td><td>Eyebrow + title + subtitle → progress bar + legend → vertical waypoint trail → summit banner on completion</td></tr>
+      <tr><td>Reference guide</td><td>Nav bar → sticky sidebar of grouped topics (dropdown on mobile) + reading panel → terminal switcher → per-topic key points, steps, tables, and callouts</td></tr>
+    </table>
+
+    <p class="section-desc" style="margin-top:20px;">Card grids use <code style="font-family:'JetBrains Mono',monospace; color:var(--ink);">repeat(auto-fill, minmax(260px, 1fr))</code> so they reflow from 3 columns down to 1 without a breakpoint rewrite.</p>
+  </section>
+
+  <!-- VOICE -->
+  <section id="voice">
+    <div class="section-head"><span class="section-num">06</span><h2>Voice &amp; Copy</h2></div>
+    <p class="section-desc">Audience is curious kids, roughly 8–16, plus parents skimming over their shoulder.</p>
+
+    <ul class="checklist">
+      <li>Plain, warm, active voice — no jargon without immediately explaining it</li>
+      <li>Titles describe the outcome ("Build Your First Webpage"), not the tech ("HTML/CSS Module 1")</li>
+      <li>Descriptions are one sentence, under ~20 words</li>
+      <li>Buttons say the action: "Start", not "Begin Learning Path"</li>
+      <li>Numbers over adjectives: "6 steps" beats "quick and easy"</li>
+    </ul>
+  </section>
+
+  <!-- DO / DONT -->
+  <section id="rules">
+    <div class="section-head"><span class="section-num">07</span><h2>Do / Don't</h2></div>
+
+    <div class="dd-grid">
+      <div class="dd-card do">
+        <span class="dd-tag">Do</span>
+        <p>Alternate track-orange and track-cyan across cards in a grid so the page has rhythm.</p>
+      </div>
+      <div class="dd-card dont">
+        <span class="dd-tag">Don't</span>
+        <p>Introduce a third accent color — every UI moment is either orange, cyan, or neutral ink.</p>
+      </div>
+      <div class="dd-card do">
+        <span class="dd-tag">Do</span>
+        <p>Keep card copy to one sentence. If a roadmap needs more explaining, that's what the detail page is for.</p>
+      </div>
+      <div class="dd-card dont">
+        <span class="dd-tag">Don't</span>
+        <p>Stack more than two badges/tags on a single card — it starts to look cluttered fast.</p>
+      </div>
+      <div class="dd-card do">
+        <span class="dd-tag">Do</span>
+        <p>Use JetBrains Mono for anything that reads like data: counts, timestamps, statuses.</p>
+      </div>
+      <div class="dd-card dont">
+        <span class="dd-tag">Don't</span>
+        <p>Set body paragraphs in Chakra Petch — it's a display face and gets hard to read at length.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- BUILD -->
+  <section id="build">
+    <div class="section-head"><span class="section-num">08</span><h2>Building a New Page</h2></div>
+    <p class="section-desc">There are two page templates. Pick based on the shape of the content, not the topic — the same subject could be either.</p>
+
+    <div class="dd-grid" style="margin-bottom:28px;">
+      <div class="dd-card do" style="background:var(--cyan-soft); border-color:var(--cyan);">
+        <span class="dd-tag" style="color:var(--cyan);">template-roadmap.html</span>
+        <p style="color:var(--ink); font-weight:600; margin-bottom:6px;">A start-to-finish trail</p>
+        <p>One ordered path you follow top to bottom, checking off steps as you go. Has a progress bar, checkable waypoints, and saved progress. Use when there's a single correct sequence with a finish line — "Build a Full-Stack App on Cloudflare," "Python From Scratch."</p>
+      </div>
+      <div class="dd-card do" style="background:var(--orange-soft); border-color:var(--orange);">
+        <span class="dd-tag" style="color:var(--orange);">template-guide-roadmap.html</span>
+        <p style="color:var(--ink); font-weight:600; margin-bottom:6px;">A reference you jump around</p>
+        <p>A sidebar of independent topics you look up in any order, with a terminal switcher for commands. No progress tracking — it's a lookup tool, not a path. Use for task-based references — "Working with Git &amp; GitHub," "Working with Cloudflare."</p>
+      </div>
+    </div>
+
+    <p class="section-desc"><strong style="color:var(--ink);">The quick test:</strong> if someone would start at the top and work down once, it's a roadmap. If they'd come back repeatedly to look up one thing, it's a guide.</p>
+
+    <p class="section-desc" style="margin-top:22px; padding-top:22px; border-top:1px solid var(--line);"><strong style="color:var(--ink);">Roadmap pages — </strong>copy <strong style="color:var(--ink);">template-roadmap.html</strong> rather than building from scratch or copying an existing roadmap page. It has every component pre-wired (progress bar, waypoint trail, copy buttons, localStorage persistence) and marks every spot you need to edit with an <code style="font-family:'JetBrains Mono',monospace; color:var(--orange);">EDIT:</code> comment, plus one example of each step type (local / cloud / manual / done) in the STEPS array.</p>
+
+    <div class="preview-block">
+      <div class="preview-label">Checklist for a new roadmap page</div>
+      <ul class="checklist" style="margin:0;">
+        <li>Copy <code style="font-family:'JetBrains Mono',monospace; color:var(--ink);">template-roadmap.html</code>, don't start from a blank file</li>
+        <li>Keep the new file in the <code style="font-family:'JetBrains Mono',monospace; color:var(--ink);">/pages/</code> folder; it links <code style="font-family:'JetBrains Mono',monospace; color:var(--ink);">/assets/styles.css</code> by absolute path, so there's no per-page stylesheet to manage</li>
+        <li>Give it a unique <code style="font-family:'JetBrains Mono',monospace; color:var(--ink);">PROGRESS_KEY</code> — reusing one from another page overwrites that page's saved progress</li>
+        <li>Title on the roadmap page matches the card title on the homepage, word for word</li>
+        <li>Fill in the STEPS array, delete the sample steps, keep descriptions to 1–3 sentences</li>
+        <li>Add a card for it on <code style="font-family:'JetBrains Mono',monospace; color:var(--ink);">index.html</code>, in the right category grid, with the real step count</li>
+        <li>If it has no single "finish line" moment, delete the summit banner div instead of leaving it unused</li>
+      </ul>
+    </div>
+
+    <p class="section-desc" style="margin-top:22px;"><strong style="color:var(--ink);">Guide pages — </strong>copy <strong style="color:var(--ink);">template-guide-roadmap.html</strong>. It has the sidebar, terminal switcher, and all four content pieces (key-points callout, command blocks, comparison tables, info/warn callouts) pre-wired, with the object shapes documented in a comment at the top of the file. You write content into a TOPICS array — no HTML per topic.</p>
+
+    <div class="preview-block">
+      <div class="preview-label">Checklist for a new guide page</div>
+      <ul class="checklist" style="margin:0;">
+        <li>Copy <code style="font-family:'JetBrains Mono',monospace; color:var(--ink);">template-guide-roadmap.html</code>, don't start from a blank file</li>
+        <li>Edit the four <code style="font-family:'JetBrains Mono',monospace; color:var(--orange);">EDIT:</code> spots: tab title, sidebar label, main heading, intro paragraph</li>
+        <li>Fill in the TOPICS array; give each topic a <code style="font-family:'JetBrains Mono',monospace; color:var(--ink);">group</code> and they auto-sort into sidebar sections</li>
+        <li>Keep every command that's the same on all terminals as <code style="font-family:'JetBrains Mono',monospace; color:var(--ink);">{ code: '…' }</code> — only add a SHELL entry for genuine native-shell differences</li>
+        <li>Delete the sample topics once your real ones are in</li>
+        <li>Add a card for it on <code style="font-family:'JetBrains Mono',monospace; color:var(--ink);">index.html</code> with a <strong>Guide</strong> tag (not a difficulty)</li>
+      </ul>
+    </div>
+
+    <p class="section-desc">The token block below is already inside both templates, but if you're patching an older page by hand, this is the exact set to match:</p>
+
+    <pre class="code-block">:root {
+  --void: #0A1220;
+  --card: #101B31;
+  --card-hover: #16233F;
+  --line: #223257;
+  --line-bright: #33507F;
+  --ink: #EDF3FF;
+  --ink-soft: #8FA3C9;
+  --ink-faint: #4E5F82;
+  --orange: #FF6B2C;
+  --orange-soft: rgba(255, 107, 44, 0.14);
+  --cyan: #2FE6E6;
+  --cyan-soft: rgba(47, 230, 230, 0.14);
+}</pre>
+
+    <ul class="checklist" style="margin-top:20px;">
+      <li>Fonts loaded: Chakra Petch (500/600/700), Inter (400/500/600), JetBrains Mono (400/500)</li>
+      <li>Background is always Void with the 42px circuit-grid pattern from the homepage</li>
+      <li>Every new roadmap card added to the homepage picks one track color and stays consistent within its own detail page</li>
+      <li>Link the new page from its category on the homepage grid — no orphan pages</li>
+    </ul>
+  </section>
+
+</div>
+</body>
+</html>

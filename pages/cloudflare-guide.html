@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Working with Cloudflare — Code's Roadmap</title>
+<link rel="stylesheet" href="/assets/styles.css">
+<style>
+  /* ── Guide-specific layout (sidebar + panel). Everything else comes from styles.css ── */
+
+  .guide-shell {
+    position: relative;
+    z-index: 1;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 20px 80px;
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 32px;
+    align-items: start;
+  }
+
+  .side {
+    position: sticky;
+    top: 20px;
+    align-self: start;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+  }
+  .side-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    padding: 6px 10px 12px;
+  }
+  .side-group + .side-group { margin-top: 14px; }
+  .side-group-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    padding: 6px 10px;
+    opacity: 0.85;
+  }
+  .side-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: background 0.14s ease, color 0.14s ease, border-color 0.14s ease;
+    user-select: none;
+  }
+  .side-link:hover { background: var(--card-hover); color: var(--ink); }
+  .side-link.active {
+    background: var(--orange-soft);
+    border-color: var(--orange);
+    color: var(--orange);
+  }
+  .side-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-faint);
+    flex-shrink: 0;
+    width: 18px;
+    text-align: right;
+  }
+  .side-link.active .side-num { color: var(--orange); }
+
+  .panel { min-width: 0; }
+
+  .panel-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 10px;
+  }
+  .panel h1 {
+    font-family: 'Chakra Petch', sans-serif;
+    font-weight: 700;
+    font-size: clamp(26px, 4vw, 34px);
+    letter-spacing: -0.01em;
+    margin: 0 0 12px;
+    color: var(--ink);
+  }
+  .panel-intro {
+    color: var(--ink-soft);
+    font-size: 14.5px;
+    line-height: 1.65;
+    margin: 0 0 22px;
+    max-width: 680px;
+  }
+
+  .term-switch {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    padding: 6px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    width: fit-content;
+    margin-bottom: 8px;
+  }
+  .term-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    padding: 6px 13px;
+    border-radius: 999px;
+    border: none;
+    background: transparent;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: background 0.14s ease, color 0.14s ease;
+    white-space: nowrap;
+  }
+  .term-btn:hover { color: var(--ink); }
+  .term-btn.active { background: var(--cyan-soft); color: var(--cyan); }
+  .term-note {
+    font-size: 12px;
+    color: var(--ink-faint);
+    margin: 0 0 26px;
+    font-style: italic;
+  }
+
+  .keypoints {
+    background: var(--cyan-soft);
+    border: 1px solid var(--cyan);
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 30px;
+  }
+  .keypoints-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 10px;
+  }
+  .keypoints ul { margin: 0; padding-left: 18px; }
+  .keypoints li {
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    line-height: 1.7;
+  }
+
+  .callout {
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin: 22px 0;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .callout.warn {
+    background: var(--orange-soft);
+    border: 1px solid var(--orange);
+    color: var(--ink);
+  }
+  .callout.warn strong { color: var(--orange); }
+  .callout.info {
+    background: rgba(143,163,201,0.08);
+    border: 1px solid var(--line);
+    color: var(--ink-soft);
+  }
+  .callout.info strong { color: var(--ink); }
+
+  .g-step {
+    position: relative;
+    padding-left: 46px;
+    margin-bottom: 26px;
+  }
+  .g-step-num {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--orange-soft);
+    border: 1.5px solid var(--orange);
+    color: var(--orange);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Chakra Petch', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .g-step-body { padding-top: 3px; }
+  .g-step h3 {
+    font-family: 'Chakra Petch', sans-serif;
+    font-weight: 600;
+    font-size: 16px;
+    margin: 0 0 6px;
+    color: var(--ink);
+  }
+  .g-step p {
+    font-size: 13.5px;
+    line-height: 1.65;
+    color: var(--ink-soft);
+    margin: 0 0 10px;
+  }
+  .g-step p:last-child { margin-bottom: 0; }
+  .g-step code.inline,
+  .panel-intro code.inline,
+  .callout code.inline,
+  .keypoints code.inline {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    background: var(--void-deep);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 1px 5px;
+    color: #C9E8D8;
+  }
+
+  .g-cmd {
+    background: var(--void-deep);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 11px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: #C9E8D8;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .g-cmd pre {
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    flex: 1;
+    line-height: 1.55;
+  }
+  .g-cmd .cmt { color: var(--ink-faint); }
+  .copy-btn {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--line);
+    color: var(--ink-soft);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    padding: 4px 9px;
+    border-radius: 6px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.12); color: var(--ink); }
+  .copy-btn.copied { color: var(--cyan); border-color: var(--cyan); }
+
+  /* comparison table used in overview topics */
+  .g-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin: 4px 0 8px;
+  }
+  .g-table th, .g-table td {
+    text-align: left;
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  .g-table th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .g-table td { color: var(--ink-soft); line-height: 1.55; }
+  .g-table td strong { color: var(--ink); }
+  .g-table td.k {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--cyan);
+    white-space: nowrap;
+  }
+
+  .topic { display: none; }
+  .topic.active { display: block; animation: fade 0.25s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  .mobile-nav { display: none; }
+
+  @media (max-width: 860px) {
+    .guide-shell { grid-template-columns: 1fr; }
+    .side { display: none; }
+    .mobile-nav { display: block; margin-bottom: 22px; }
+    .mobile-nav select {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--ink);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      padding: 12px 14px;
+      outline: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .topic.active { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-field"></div>
+
+<div class="nav">
+  <a class="nav-brand" href="/index.html">
+    <img src="/assets/cts-mark-logo.png" alt="Creative Tech Studio logo">
+    <span>Creative Tech Studio</span>
+  </a>
+  <a class="back-link" href="/index.html">← All Roadmaps</a>
+</div>
+
+<div class="guide-shell">
+
+  <aside class="side" id="side">
+    <div class="side-title">Cloudflare Guide</div>
+  </aside>
+
+  <main class="panel">
+    <div class="panel-eyebrow">Reference Guide</div>
+    <h1>Working with Cloudflare</h1>
+    <p class="panel-intro">A practical guide to Cloudflare's developer platform — what it is, which storage product to reach for, and the Wrangler commands you'll actually run to build, configure, and deploy Workers. Pick a topic from the sidebar. Commands adapt to your terminal below.</p>
+
+    <div class="term-switch" id="term-switch">
+      <button class="term-btn active" data-term="unix">macOS / Linux</button>
+      <button class="term-btn" data-term="gitbash">Git Bash</button>
+      <button class="term-btn" data-term="powershell">PowerShell</button>
+      <button class="term-btn" data-term="cmd">Windows CMD</button>
+    </div>
+    <p class="term-note" id="term-note">Wrangler and npm commands are identical across terminals — only a few native shell commands (like setting an env var) differ. Those swap automatically.</p>
+
+    <div class="mobile-nav">
+      <select id="mobile-select"></select>
+    </div>
+
+    <div id="topics"></div>
+  </main>
+
+</div>
+
+<footer>CREATIVE TECH STUDIO — CODE'S ROADMAP</footer>
+
+<script>
+(function () {
+
+  /* Terminal-specific shell command variants (Wrangler/npm never change) */
+  const SHELL = {
+    setenv: {
+      unix:       (name, val) => `export ${name}="${val}"`,
+      gitbash:    (name, val) => `export ${name}="${val}"`,
+      powershell: (name, val) => `$env:${name} = "${val}"`,
+      cmd:        (name, val) => `set ${name}=${val}`,
+    },
+  };
+
+  let term = 'unix';
+
+  const TOPICS = [
+    /* ============================ UNDERSTAND IT ============================ */
+    {
+      id: 'what-is',
+      group: 'Understand it',
+      title: 'What Cloudflare is',
+      intro: 'Cloudflare is a global cloud network and cybersecurity company. It sits as an invisible middleman between a website\'s server and its visitors — speeding up delivery, blocking malicious traffic, and keeping sites online during traffic surges, without you building your own worldwide server network.',
+      keypoints: [
+        'You use it so your site stays fast, secure, and reliable without running your own global infrastructure.',
+        'For developers, the draw is the Workers platform — running code at the edge, close to users, with no servers to manage.',
+      ],
+      steps: [
+        {
+          title: 'Content Delivery Network (CDN)',
+          body: 'Cloudflare caches your content across a global network of servers and serves each visitor from the location nearest them, which significantly speeds up load times.',
+          cmds: [],
+        },
+        {
+          title: 'Cybersecurity shield',
+          body: 'It protects sites from attacks like DDoS floods, bad bots, and malicious requests, and hides your origin server\'s real IP address so it can\'t be targeted directly.',
+          cmds: [],
+        },
+        {
+          title: 'Domain & DNS management',
+          body: 'It manages DNS records and can act as your domain registrar. It also runs <code class="inline">1.1.1.1</code>, a free, fast, privacy-focused public DNS resolver.',
+          cmds: [],
+        },
+        {
+          title: 'Edge computing',
+          body: 'It lets you run code close to the user to build fast, serverless applications — this is the Workers platform, and it\'s what the rest of this guide focuses on.',
+          cmds: [],
+        },
+      ],
+    },
+    {
+      id: 'storage-picker',
+      group: 'Understand it',
+      title: 'Which storage do I use?',
+      intro: 'Cloudflare doesn\'t have one database — it has four purpose-built storage products, each shaped for a different access pattern. Picking the wrong one is the most common early mistake, so start here.',
+      keypoints: [
+        'The core question: is your data a <strong>file</strong>, <strong>rows in a table</strong>, <strong>simple key→value</strong>, or <strong>fast-changing shared state</strong>?',
+        'The Cloudflare pattern is "many small things, not one big thing" — e.g. a database per tenant, not one giant database.',
+        'A frequent trap: using KV for counters or rate-limiting. KV is eventually consistent — use Durable Objects for those.',
+      ],
+      steps: [
+        {
+          title: 'The four products at a glance',
+          body: 'This table is the fast way to choose. The sections after it go deeper on the two you\'ll use most (R2 and D1).',
+          table: {
+            head: ['Product', 'Use it for', 'Free tier'],
+            rows: [
+              ['<td class="k">R2</td>', '<strong>Files</strong> — images, PDFs, video, any unstructured blob. S3-compatible, no egress fees.', '10 GB storage, 10M reads/mo'],
+              ['<td class="k">D1</td>', '<strong>Relational data</strong> — user tables, orders, anything you\'d write SQL for. SQLite-based, strongly consistent.', '25M row reads/mo, 5 GB storage'],
+              ['<td class="k">KV</td>', '<strong>Simple key→value</strong>, read a lot, written rarely — config, feature flags, sessions. Eventually consistent.', '25M reads/mo, 1 GB storage'],
+              ['<td class="k">Durable&nbsp;Objects</td>', '<strong>Fast-changing shared state</strong> needing strong consistency — chat rooms, rate limiters, live counters, leaderboards.', 'On paid plans; SQLite-backed'],
+            ],
+          },
+          cmds: [],
+        },
+        {
+          title: 'Watch the consistency trap',
+          body: 'KV writes can take up to ~60 seconds to be visible from another region. Never build a "write then immediately read it back" flow on KV, and never use it for anything that must be exactly right the instant it changes.',
+          cmds: [],
+          callout: { type: 'info', html: '<strong>Rule of thumb:</strong> file → R2, SQL/tables → D1, read-heavy config → KV, accurate real-time counters → Durable Objects.' },
+        },
+        {
+          title: 'Know D1\'s size limit',
+          body: 'A single D1 database caps at 10 GB. That\'s intentional — Cloudflare wants you to use many smaller databases (up to 50,000) rather than one huge one. For most personal and small-business projects, one D1 database is more than enough.',
+          cmds: [],
+        },
+      ],
+    },
+    {
+      id: 'r2-explained',
+      group: 'Understand it',
+      title: 'R2 object storage explained',
+      intro: 'R2 is Cloudflare\'s object storage — a bucket in the cloud where you dump files: images, PDFs, video, anything that isn\'t a database row. Its headline advantage over alternatives is no egress fees, which is a big deal for image- or media-heavy apps.',
+      keypoints: [
+        'An <strong>object</strong> is a single stored file, identified by a <strong>key</strong> string like <code class="inline">abc123.png</code>.',
+        'A <strong>bucket</strong> is a named container holding many objects — like a folder.',
+        'A <strong>binding</strong> is how your Worker reads/writes the bucket in code, with no HTTP credentials needed.',
+      ],
+      steps: [
+        {
+          title: 'Why R2 over S3 and others',
+          body: 'The no-egress-fees model is the win — you pay for storage and operations, but not for data leaving the bucket.',
+          table: {
+            head: ['Service', 'Pricing model', 'Notes'],
+            rows: [
+              ['<td class="k">R2</td>', 'Free egress, pay for storage', 'Cheapest when files get fetched a lot'],
+              ['<td class="k">AWS S3</td>', 'Pay for egress', 'Industry standard, but expensive at scale'],
+              ['<td class="k">Vercel Blob</td>', 'Bundled with Vercel', 'Easy, but locked to Vercel'],
+              ['<td class="k">Supabase</td>', 'Bundled with Supabase', 'Easy, but locked to Supabase'],
+            ],
+          },
+          cmds: [],
+        },
+        {
+          title: 'Declare the bucket binding',
+          body: 'In <code class="inline">wrangler.jsonc</code>, declare the bucket so your Worker can reach it. This makes <code class="inline">env.SCREENSHOTS</code> available in your code.',
+          cmds: [
+            { code: '"r2_buckets": [\n  { "binding": "SCREENSHOTS", "bucket_name": "flash-projects-screenshots" }\n]', comment: 'in wrangler.jsonc' },
+          ],
+        },
+        {
+          title: 'Write and read objects',
+          body: 'Once bound, writing an uploaded file into R2 is a single line — and reads work the same way with <code class="inline">.get(key)</code>.',
+          cmds: [
+            { code: 'await env.SCREENSHOTS.put(key, file.stream(), { /* options */ });', comment: 'write' },
+            { code: 'const object = await env.SCREENSHOTS.get(key);', comment: 'read' },
+          ],
+        },
+      ],
+    },
+
+    /* ============================ WRANGLER SETUP ============================ */
+    {
+      id: 'wrangler-what',
+      group: 'Wrangler & setup',
+      title: 'What Wrangler is',
+      intro: 'Wrangler is Cloudflare\'s official command-line tool (CLI) for building, configuring, and deploying applications on the Cloudflare Developer Platform. It\'s the primary tool for managing Workers, and you\'ll run it constantly.',
+      keypoints: [
+        'You run it with <code class="inline">npx wrangler ...</code> when it\'s installed locally in a project.',
+        'C3 (create-cloudflare) installs Wrangler for you automatically in new projects.',
+      ],
+      steps: [],
+    },
+    {
+      id: 'new-project',
+      group: 'Wrangler & setup',
+      title: 'Start a new project (C3)',
+      intro: 'The fastest way to begin. The create-cloudflare CLI (C3) scaffolds a project, installs the latest Wrangler, and walks you through setup with interactive prompts.',
+      keypoints: [
+        'One command does everything — scaffolds files, installs Wrangler, and offers to deploy.',
+        'It asks what to start with (e.g. Hello World), a template, a language, whether to use Git, and whether to deploy now.',
+      ],
+      steps: [
+        {
+          title: 'Run the create-cloudflare CLI',
+          body: 'This prompts you to install the <code class="inline">create-cloudflare</code> package and leads you through setup.',
+          cmds: [
+            { code: 'npm create cloudflare@latest' },
+          ],
+        },
+        {
+          title: 'Answer the prompts',
+          body: 'For a first Worker, a typical set of answers is: start with "Hello World example," template "Worker only," your language of choice, use Git "Yes," and deploy "No" (so you can make changes before going live).',
+          cmds: [],
+        },
+      ],
+    },
+    {
+      id: 'existing-project',
+      group: 'Wrangler & setup',
+      title: 'Add Wrangler to an existing project',
+      intro: 'Already have a project without Wrangler? Install it as a development dependency, then use it through <code class="inline">npx</code>.',
+      keypoints: [
+        'Install as a dev dependency (<code class="inline">-D</code>), since it\'s a build tool, not part of your shipped app.',
+        'Run all commands with <code class="inline">npx wrangler ...</code>.',
+      ],
+      steps: [
+        {
+          title: 'Install Wrangler',
+          body: 'Adds it to your project\'s dev dependencies.',
+          cmds: [
+            { code: 'npm install -D wrangler' },
+          ],
+        },
+        {
+          title: 'Log in to link the CLI to your account',
+          body: 'Run this in the repo root. It opens your browser and asks you to authorize Wrangler. It uses OAuth tokens cached locally that refresh in the background.',
+          cmds: [
+            { code: 'npx wrangler login' },
+          ],
+          callout: { type: 'info', html: 'A login session typically lasts about <strong>24–30 days</strong> before it expires and you need to log in again.' },
+        },
+        {
+          title: 'Confirm you\'re logged in',
+          body: 'This should print your account email. It\'s also how you check your session status or which account you\'re logged into at any time.',
+          cmds: [
+            { code: 'npx wrangler whoami' },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'wrangler-commands',
+      group: 'Wrangler & setup',
+      title: 'Everyday Wrangler commands',
+      intro: 'The commands you\'ll reach for most once a project is set up — running locally, deploying, managing buckets, and watching logs.',
+      keypoints: [
+        '<code class="inline">wrangler dev</code> runs your Worker locally with real bindings before you deploy.',
+        '<code class="inline">wrangler deploy</code> is the command that actually pushes your Worker live.',
+      ],
+      steps: [
+        {
+          title: 'Run and deploy',
+          cmds: [
+            { code: 'npx wrangler dev', comment: 'run locally with real bindings' },
+            { code: 'npx wrangler deploy', comment: 'push to production' },
+          ],
+        },
+        {
+          title: 'Manage R2 buckets',
+          cmds: [
+            { code: 'npx wrangler r2 bucket create flash-projects-screenshots', comment: 'create a bucket' },
+            { code: 'npx wrangler r2 object list flash-projects-screenshots', comment: 'list files in it' },
+          ],
+        },
+        {
+          title: 'Logs and types',
+          cmds: [
+            { code: 'npx wrangler tail', comment: 'stream live logs from the deployed Worker' },
+            { code: 'npx wrangler types', comment: 'generate TypeScript types for your bindings' },
+          ],
+        },
+      ],
+    },
+
+    /* ============================ SECRETS & SECURITY ============================ */
+    {
+      id: 'secrets',
+      group: 'Secrets & security',
+      title: 'Add or rotate a secret',
+      intro: 'Runtime secrets — API keys, database URLs, tokens — should never live in your code or <code class="inline">wrangler.jsonc</code>. Wrangler stores them encrypted with Cloudflare, and your deployed Worker reads them at runtime.',
+      keypoints: [
+        'Secrets are stored encrypted by Cloudflare and never appear in your code or config file.',
+        'The same command both adds a new secret and rotates (replaces) an existing one.',
+        'You can also manage secrets from the Cloudflare dashboard instead of the CLI.',
+      ],
+      steps: [
+        {
+          title: 'Set or rotate a secret',
+          body: 'Run this whenever you need to add a new secret or replace an existing one. It prompts you to paste the value so it never ends up in your shell history.',
+          cmds: [
+            { code: 'npx wrangler secret put NAME', comment: 'general form' },
+            { code: 'npx wrangler secret put ANTHROPIC_API_KEY', comment: 'example' },
+          ],
+        },
+        {
+          title: 'Why this matters',
+          body: 'Once the secret is stored this way, your deployed Worker can access it securely while it stays out of your source code and version control entirely.',
+          cmds: [],
+        },
+      ],
+    },
+    {
+      id: 'turnstile',
+      group: 'Secrets & security',
+      title: 'Add bot protection (Turnstile)',
+      intro: 'Turnstile is Cloudflare\'s bot-protection widget. Put it in front of public forms — like a newsletter subscribe form — so spammers can\'t hammer your endpoint with garbage submissions, which also protects your email-sending reputation.',
+      keypoints: [
+        'You get two keys: a <strong>site key</strong> (public, used in the browser) and a <strong>secret key</strong> (private, used by your Worker to verify).',
+        '"Managed" mode lets Cloudflare decide when to show a challenge — usually invisible to real users.',
+        'The site key is a build-time env var; the secret key is a Worker secret.',
+      ],
+      steps: [
+        {
+          title: 'Create a Turnstile site',
+          body: 'In the dashboard, go to <code class="inline">dash.cloudflare.com</code> → Turnstile (in the left sidebar, possibly under "Security"), then Add site. Give it a name and set the domain to your site.',
+          cmds: [],
+        },
+        {
+          title: 'Choose Managed mode',
+          body: 'Managed mode lets Cloudflare decide whether to show a challenge based on signals — for real users it\'s usually invisible. Save, and Cloudflare shows you both keys.',
+          cmds: [],
+        },
+        {
+          title: 'Save both keys safely',
+          body: 'Note the site key (public) and secret key (private) — store them in a password manager. The site key goes in a public build env var; the secret key goes in a Worker secret (see "Add or rotate a secret").',
+          cmds: [
+            { code: 'npx wrangler secret put TURNSTILE_SECRET_KEY', comment: 'store the private key as a Worker secret' },
+          ],
+          callout: { type: 'warn', html: '<strong>Keep the secret key private.</strong> Only the public site key belongs in browser-side code. The secret key must only ever live in your Worker secret or password manager.' },
+        },
+      ],
+    },
+  ];
+
+  /* ── Build sidebar + mobile select ── */
+  const sideEl = document.getElementById('side');
+  const topicsEl = document.getElementById('topics');
+  const mobileSelect = document.getElementById('mobile-select');
+
+  const groups = [];
+  TOPICS.forEach((t) => {
+    let g = groups.find(x => x.name === t.group);
+    if (!g) { g = { name: t.group, items: [] }; groups.push(g); }
+    g.items.push({ topic: t });
+  });
+
+  let globalIndex = 0;
+  groups.forEach(g => {
+    const groupEl = document.createElement('div');
+    groupEl.className = 'side-group';
+    groupEl.innerHTML = `<div class="side-group-label">${g.name}</div>`;
+    g.items.forEach(({ topic }) => {
+      const n = ++globalIndex;
+      const link = document.createElement('div');
+      link.className = 'side-link';
+      link.dataset.target = topic.id;
+      link.innerHTML = `<span class="side-num">${String(n).padStart(2,'0')}</span><span>${topic.title}</span>`;
+      link.addEventListener('click', () => selectTopic(topic.id));
+      groupEl.appendChild(link);
+    });
+    sideEl.appendChild(groupEl);
+
+    const og = document.createElement('optgroup');
+    og.label = g.name;
+    g.items.forEach(({ topic }) => {
+      const opt = document.createElement('option');
+      opt.value = topic.id;
+      opt.textContent = topic.title;
+      og.appendChild(opt);
+    });
+    mobileSelect.appendChild(og);
+  });
+  mobileSelect.addEventListener('change', (e) => selectTopic(e.target.value));
+
+  function cmdCode(cmd) {
+    if (cmd.code != null) return cmd.code;
+    return SHELL[cmd.shell][term](...cmd.args);
+  }
+
+  function renderTopics() {
+    topicsEl.innerHTML = '';
+    TOPICS.forEach(topic => {
+      const el = document.createElement('section');
+      el.className = 'topic';
+      el.id = 'topic-' + topic.id;
+      el.dataset.id = topic.id;
+
+      const kp = topic.keypoints ? `
+        <div class="keypoints">
+          <div class="keypoints-title">Key points</div>
+          <ul>${topic.keypoints.map(k => `<li>${k}</li>`).join('')}</ul>
+        </div>` : '';
+
+      const steps = (topic.steps || []).map((s, i) => {
+        const cmds = (s.cmds || []).map(c => {
+          const code = cmdCode(c);
+          const cmt = c.comment ? `<span class="cmt"># ${escapeHtml(c.comment)}</span>\n` : '';
+          return `<div class="g-cmd"><pre>${cmt}${escapeHtml(code)}</pre><button class="copy-btn" data-copy="${encodeURIComponent(code)}">copy</button></div>`;
+        }).join('');
+
+        let tableHtml = '';
+        if (s.table) {
+          const head = s.table.head.map(h => `<th>${h}</th>`).join('');
+          const rows = s.table.rows.map(r => `<tr>${r.join('')}</tr>`).join('');
+          tableHtml = `<table class="g-table"><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table>`;
+        }
+
+        const callout = s.callout ? `<div class="callout ${s.callout.type}">${s.callout.html}</div>` : '';
+        const body = s.body ? `<p>${s.body}</p>` : '';
+        return `
+          <div class="g-step">
+            <div class="g-step-num">${i + 1}</div>
+            <div class="g-step-body">
+              <h3>${escapeHtml(s.title)}</h3>
+              ${body}
+              ${tableHtml}
+              ${cmds}
+              ${callout}
+            </div>
+          </div>`;
+      }).join('');
+
+      el.innerHTML = `
+        <div class="panel-eyebrow">${escapeHtml(topic.group)}</div>
+        <h1 style="font-size:clamp(24px,3.4vw,30px); margin-bottom:10px;">${escapeHtml(topic.title)}</h1>
+        <p class="panel-intro">${topic.intro}</p>
+        ${kp}
+        ${steps}
+      `;
+      topicsEl.appendChild(el);
+    });
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  let currentId = TOPICS[0].id;
+  function selectTopic(id) {
+    currentId = id;
+    document.querySelectorAll('.topic').forEach(t => t.classList.toggle('active', t.dataset.id === id));
+    document.querySelectorAll('.side-link').forEach(l => l.classList.toggle('active', l.dataset.target === id));
+    if (mobileSelect.value !== id) mobileSelect.value = id;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    history.replaceState(null, '', '#' + id);
+  }
+
+  document.getElementById('term-switch').addEventListener('click', (e) => {
+    const btn = e.target.closest('.term-btn');
+    if (!btn) return;
+    term = btn.dataset.term;
+    document.querySelectorAll('.term-btn').forEach(b => b.classList.toggle('active', b === btn));
+    renderTopics();
+    selectTopic(currentId);
+  });
+
+  topicsEl.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-copy]');
+    if (!btn) return;
+    const text = decodeURIComponent(btn.getAttribute('data-copy'));
+    const done = () => {
+      const original = btn.textContent;
+      btn.textContent = 'copied';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = original; btn.classList.remove('copied'); }, 1200);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(done);
+    } else { done(); }
+  });
+
+  renderTopics();
+  const fromHash = location.hash.replace('#', '');
+  selectTopic(TOPICS.some(t => t.id === fromHash) ? fromHash : TOPICS[0].id);
+})();
+</script>
+
+</body>
+</html>

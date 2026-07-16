@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Working with Git &amp; GitHub — Code's Roadmap</title>
+<link rel="stylesheet" href="/assets/styles.css">
+<style>
+  /* ── Guide-specific layout (sidebar + panel). Everything else comes from style.css ── */
+
+  .guide-shell {
+    position: relative;
+    z-index: 1;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 20px 80px;
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 32px;
+    align-items: start;
+  }
+
+  /* sidebar */
+  .side {
+    position: sticky;
+    top: 20px;
+    align-self: start;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+  }
+  .side-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    padding: 6px 10px 12px;
+  }
+  .side-group + .side-group { margin-top: 14px; }
+  .side-group-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    padding: 6px 10px;
+    opacity: 0.85;
+  }
+  .side-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: background 0.14s ease, color 0.14s ease, border-color 0.14s ease;
+    user-select: none;
+  }
+  .side-link:hover { background: var(--card-hover); color: var(--ink); }
+  .side-link.active {
+    background: var(--orange-soft);
+    border-color: var(--orange);
+    color: var(--orange);
+  }
+  .side-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-faint);
+    flex-shrink: 0;
+    width: 18px;
+    text-align: right;
+  }
+  .side-link.active .side-num { color: var(--orange); }
+
+  /* main panel */
+  .panel { min-width: 0; }
+
+  .panel-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 10px;
+  }
+  .panel h1 {
+    font-family: 'Chakra Petch', sans-serif;
+    font-weight: 700;
+    font-size: clamp(26px, 4vw, 34px);
+    letter-spacing: -0.01em;
+    margin: 0 0 12px;
+    color: var(--ink);
+  }
+  .panel-intro {
+    color: var(--ink-soft);
+    font-size: 14.5px;
+    line-height: 1.65;
+    margin: 0 0 22px;
+    max-width: 680px;
+  }
+
+  /* terminal switcher */
+  .term-switch {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    padding: 6px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    width: fit-content;
+    margin-bottom: 8px;
+  }
+  .term-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    padding: 6px 13px;
+    border-radius: 999px;
+    border: none;
+    background: transparent;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: background 0.14s ease, color 0.14s ease;
+    white-space: nowrap;
+  }
+  .term-btn:hover { color: var(--ink); }
+  .term-btn.active { background: var(--cyan-soft); color: var(--cyan); }
+  .term-note {
+    font-size: 12px;
+    color: var(--ink-faint);
+    margin: 0 0 26px;
+    font-style: italic;
+  }
+
+  /* key points callout */
+  .keypoints {
+    background: var(--cyan-soft);
+    border: 1px solid var(--cyan);
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 30px;
+  }
+  .keypoints-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 10px;
+  }
+  .keypoints ul { margin: 0; padding-left: 18px; }
+  .keypoints li {
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    line-height: 1.7;
+  }
+
+  /* danger callout */
+  .callout {
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin: 22px 0;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .callout.warn {
+    background: var(--orange-soft);
+    border: 1px solid var(--orange);
+    color: var(--ink);
+  }
+  .callout.warn strong { color: var(--orange); }
+  .callout.info {
+    background: rgba(143,163,201,0.08);
+    border: 1px solid var(--line);
+    color: var(--ink-soft);
+  }
+  .callout.info strong { color: var(--ink); }
+
+  /* step within a topic */
+  .g-step {
+    position: relative;
+    padding-left: 46px;
+    margin-bottom: 26px;
+  }
+  .g-step-num {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--orange-soft);
+    border: 1.5px solid var(--orange);
+    color: var(--orange);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Chakra Petch', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .g-step-body { padding-top: 3px; }
+  .g-step h3 {
+    font-family: 'Chakra Petch', sans-serif;
+    font-weight: 600;
+    font-size: 16px;
+    margin: 0 0 6px;
+    color: var(--ink);
+  }
+  .g-step p {
+    font-size: 13.5px;
+    line-height: 1.65;
+    color: var(--ink-soft);
+    margin: 0 0 10px;
+  }
+  .g-step p:last-child { margin-bottom: 0; }
+  .g-step code.inline,
+  .panel-intro code.inline,
+  .callout code.inline {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    background: var(--void-deep);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 1px 5px;
+    color: #C9E8D8;
+  }
+
+  /* command block (reuses .cmd-block/.copy-btn styling from style.css) */
+  .g-cmd {
+    background: var(--void-deep);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 11px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: #C9E8D8;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .g-cmd pre {
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    flex: 1;
+    line-height: 1.55;
+  }
+  .g-cmd .cmt { color: var(--ink-faint); }
+  .copy-btn {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--line);
+    color: var(--ink-soft);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    padding: 4px 9px;
+    border-radius: 6px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.12); color: var(--ink); }
+  .copy-btn.copied { color: var(--cyan); border-color: var(--cyan); }
+
+  .topic { display: none; }
+  .topic.active { display: block; animation: fade 0.25s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  /* mobile topic selector (hidden on desktop) */
+  .mobile-nav { display: none; }
+
+  @media (max-width: 860px) {
+    .guide-shell { grid-template-columns: 1fr; }
+    .side { display: none; }
+    .mobile-nav {
+      display: block;
+      margin-bottom: 22px;
+    }
+    .mobile-nav select {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--ink);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      padding: 12px 14px;
+      outline: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .topic.active { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-field"></div>
+
+<div class="nav">
+  <a class="nav-brand" href="index.html">
+    <img src="assets/ctslogo.png" alt="Creative Tech Studio logo">
+    <span>Creative Tech Studio</span>
+  </a>
+  <a class="back-link" href="index.html">← All Roadmaps</a>
+</div>
+
+<div class="guide-shell">
+
+  <!-- SIDEBAR -->
+  <aside class="side" id="side">
+    <div class="side-title">Git &amp; GitHub Guide</div>
+    <!-- populated by JS -->
+  </aside>
+
+  <!-- MAIN PANEL -->
+  <main class="panel">
+    <div class="panel-eyebrow">Reference Guide</div>
+    <h1>Working with Git &amp; GitHub</h1>
+    <p class="panel-intro">A practical, task-based guide to the Git and GitHub workflows people actually run into — starting a repo, pushing to GitHub, fixing rejected pushes, removing files (including secrets), and moving a project between repositories. Pick a task from the sidebar. Commands adapt to your terminal below.</p>
+
+    <div class="term-switch" id="term-switch">
+      <button class="term-btn active" data-term="unix">macOS / Linux</button>
+      <button class="term-btn" data-term="gitbash">Git Bash</button>
+      <button class="term-btn" data-term="powershell">PowerShell</button>
+      <button class="term-btn" data-term="cmd">Windows CMD</button>
+    </div>
+    <p class="term-note" id="term-note">Git commands are identical across terminals — only a few shell commands (like deleting a folder) differ. Those swap automatically.</p>
+
+    <div class="mobile-nav">
+      <select id="mobile-select"></select>
+    </div>
+
+    <div id="topics"></div>
+  </main>
+
+</div>
+
+<footer>CREATIVE TECH STUDIO — CODE'S ROADMAP</footer>
+
+<script>
+(function () {
+
+  /* ── Terminal-specific shell command variants ──
+     Referenced in steps as {rmdir:.git} style tokens. Git commands themselves
+     never change between terminals; only native shell commands do. */
+  const SHELL = {
+    // delete a folder recursively/forcefully
+    rmrf: {
+      unix:       (p) => `rm -rf ${p}`,
+      gitbash:    (p) => `rm -rf ${p}`,
+      powershell: (p) => `Remove-Item -Recurse -Force ${p}`,
+      cmd:        (p) => `rmdir /s /q ${p}`,
+    },
+    // append a line to a file
+    append: {
+      unix:       (line, file) => `echo "${line}" >> ${file}`,
+      gitbash:    (line, file) => `echo "${line}" >> ${file}`,
+      powershell: (line, file) => `Add-Content ${file} "${line}"`,
+      cmd:        (line, file) => `echo ${line}>> ${file}`,
+    },
+    // create a folder
+    mkdir: {
+      unix:       (p) => `mkdir -p ${p}`,
+      gitbash:    (p) => `mkdir -p ${p}`,
+      powershell: (p) => `New-Item -ItemType Directory -Force ${p}`,
+      cmd:        (p) => `mkdir ${p}`,
+    },
+    // copy a folder recursively
+    cprf: {
+      unix:       (src, dst) => `cp -r ${src} ${dst}`,
+      gitbash:    (src, dst) => `cp -r ${src} ${dst}`,
+      powershell: (src, dst) => `Copy-Item -Recurse ${src} ${dst}`,
+      cmd:        (src, dst) => `xcopy /e /i ${src} ${dst}`,
+    },
+  };
+
+  let term = 'unix';
+
+  /* ── Guide content ──
+     Each topic: { id, group, title, icon, intro, keypoints?, steps: [...] }
+     A step: { title, body (HTML ok), cmds: [ {shell?, code?, comment?} ], callout? }
+       - cmds entries with `code` are literal (same on every terminal)
+       - cmds entries with `shell` pull the terminal-specific variant:
+           { shell: 'rmrf', args: ['.git'] }
+  */
+  const TOPICS = [
+    /* ============================ GETTING STARTED ============================ */
+    {
+      id: 'first-setup',
+      group: 'Getting started',
+      title: 'One-time Git setup',
+      intro: 'Before your first commit on a new machine, tell Git who you are and set your default branch name. You only do this once per computer.',
+      keypoints: [
+        'Set your name and email so commits are attributed correctly.',
+        'Set <code class="inline">main</code> as your default branch to match GitHub (Git itself still defaults to <code class="inline">master</code> until Git 3.0).',
+        'Treat Git history as public by default — never commit secrets, even to a private repo.',
+      ],
+      steps: [
+        {
+          title: 'Set your identity',
+          body: 'These get attached to every commit you make. Use the same email as your GitHub account so commits link to your profile.',
+          cmds: [
+            { code: 'git config --global user.name "Your Name"' },
+            { code: 'git config --global user.email "you@example.com"' },
+          ],
+        },
+        {
+          title: 'Default new repos to "main"',
+          body: 'GitHub names the first branch <code class="inline">main</code>, but Git still creates <code class="inline">master</code> until version 3.0. This line makes new local repos use <code class="inline">main</code> so the two always match.',
+          cmds: [
+            { code: 'git config --global init.defaultBranch main' },
+          ],
+        },
+        {
+          title: 'Check your settings',
+          body: 'Confirm everything saved correctly.',
+          cmds: [
+            { code: 'git config --list' },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'gitignore',
+      group: 'Getting started',
+      title: 'Set up .gitignore',
+      intro: 'A .gitignore file tells Git which files to never track — secrets, dependencies, build output, and OS clutter. Set it up on day one, before your first commit, so these files never enter your history.',
+      keypoints: [
+        'Always ignore <code class="inline">.env</code> and other secret files from the very first commit.',
+        'Use a template .gitignore for your stack (Node, Python, etc.) instead of writing one from scratch.',
+        'If a file is already committed, adding it to .gitignore does <em>not</em> untrack it — see "Stop tracking a file".',
+      ],
+      steps: [
+        {
+          title: 'Create the file',
+          body: 'It lives in your project root, named exactly <code class="inline">.gitignore</code> (with the leading dot).',
+          cmds: [
+            { shell: 'append', args: ['.env', '.gitignore'], comment: 'start it with your secrets file' },
+            { shell: 'append', args: ['node_modules/', '.gitignore'] },
+          ],
+        },
+        {
+          title: 'Use a ready-made template',
+          body: 'GitHub maintains vetted .gitignore templates for every major language. Rather than guessing, grab the one for your stack from <code class="inline">github.com/github/gitignore</code>, or select it when creating a repo on GitHub.',
+          cmds: [],
+        },
+        {
+          title: 'Common things to ignore',
+          body: 'Secrets (<code class="inline">.env</code>, <code class="inline">*.pem</code>, key files), dependencies (<code class="inline">node_modules/</code>, <code class="inline">venv/</code>), build output (<code class="inline">dist/</code>, <code class="inline">build/</code>), and OS/editor files (<code class="inline">.DS_Store</code>, <code class="inline">.vscode/</code>).',
+          cmds: [],
+        },
+      ],
+    },
+
+    /* ============================ STARTING A REPO ============================ */
+    {
+      id: 'push-existing',
+      group: 'Starting a repo',
+      title: 'Push an existing project to GitHub',
+      intro: 'You have a project folder on your machine and want it on GitHub for the first time. The key rule: create the GitHub repo empty, so there is nothing to merge.',
+      keypoints: [
+        'When creating the GitHub repo, do <strong>not</strong> add a README, .gitignore, or license — those create files that conflict with your existing project.',
+        'If you did initialize with those files, you must <code class="inline">git pull</code> first before you can push.',
+        'The <code class="inline">-u</code> flag on your first push sets up tracking, so later you can just run <code class="inline">git push</code>.',
+      ],
+      steps: [
+        {
+          title: 'Create an empty repo on GitHub',
+          body: 'On GitHub, click New repository, give it a name, and leave every "Initialize this repository with…" option unchecked. You want a completely empty repo.',
+          cmds: [],
+        },
+        {
+          title: 'Initialize Git in your project folder',
+          body: 'From a terminal inside your project folder.',
+          cmds: [ { code: 'git init' } ],
+        },
+        {
+          title: 'Stage and commit everything',
+          body: 'Stage all files, then make your first commit.',
+          cmds: [
+            { code: 'git add .' },
+            { code: 'git commit -m "Initial commit"' },
+          ],
+        },
+        {
+          title: 'Rename your branch to main',
+          body: 'Match GitHub\'s default branch name.',
+          cmds: [ { code: 'git branch -M main' } ],
+        },
+        {
+          title: 'Connect the GitHub repo as "origin"',
+          body: 'Copy the URL from your new repo\'s page. Use the SSH URL if you have SSH keys set up, or the HTTPS URL otherwise.',
+          cmds: [
+            { code: 'git remote add origin git@github.com:USERNAME/REPO-NAME.git', comment: 'SSH' },
+            { code: 'git remote add origin https://github.com/USERNAME/REPO-NAME.git', comment: 'or HTTPS' },
+          ],
+        },
+        {
+          title: 'Push',
+          body: 'The <code class="inline">-u</code> flag links your local <code class="inline">main</code> to the remote so future pushes are just <code class="inline">git push</code>.',
+          cmds: [ { code: 'git push -u origin main' } ],
+        },
+      ],
+    },
+    {
+      id: 'clone',
+      group: 'Starting a repo',
+      title: 'Clone an existing repo',
+      intro: 'Copy a repo that already exists on GitHub down to your machine, fully connected and ready to work on.',
+      keypoints: [
+        'Cloning automatically sets up <code class="inline">origin</code> — you don\'t need to add a remote.',
+        'Use the SSH URL to avoid typing credentials on every push (once SSH keys are set up).',
+      ],
+      steps: [
+        {
+          title: 'Copy the repo URL',
+          body: 'On the repo\'s GitHub page, click the green Code button and copy the SSH or HTTPS URL.',
+          cmds: [],
+        },
+        {
+          title: 'Clone it',
+          body: 'This creates a new folder named after the repo, downloads all files and history, and wires up <code class="inline">origin</code> automatically.',
+          cmds: [
+            { code: 'git clone git@github.com:USERNAME/REPO-NAME.git', comment: 'SSH' },
+            { code: 'git clone https://github.com/USERNAME/REPO-NAME.git', comment: 'or HTTPS' },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'reset-repo',
+      group: 'Starting a repo',
+      title: 'Detach a folder from its old repo',
+      intro: 'You copied or downloaded a project and it still carries someone else\'s Git history and remote. This wipes the existing Git data so you can start fresh.',
+      keypoints: [
+        'Deleting <code class="inline">.git</code> is <strong>permanent</strong> — it erases all local history and the connection to the old repo.',
+        'Back up anything important before doing this.',
+      ],
+      steps: [
+        {
+          title: 'Delete the existing Git repository',
+          body: 'Navigate into the project folder, then remove the hidden <code class="inline">.git</code> directory. This untracks all files and severs the link to the previous repo. It does not touch your actual project files.',
+          cmds: [
+            { shell: 'rmrf', args: ['.git'] },
+          ],
+          callout: { type: 'warn', html: '<strong>This cannot be undone.</strong> It permanently deletes the folder\'s Git history. Your code files are safe — only version history is removed.' },
+        },
+        {
+          title: 'Start a fresh repository',
+          body: 'Now the folder is a clean slate. Initialize a new repo and you\'re ready to commit and connect it wherever you like.',
+          cmds: [ { code: 'git init' } ],
+        },
+      ],
+    },
+
+    /* ============================ EVERYDAY WORKFLOW ============================ */
+    {
+      id: 'daily',
+      group: 'Everyday workflow',
+      title: 'The everyday push cycle',
+      intro: 'The loop you\'ll repeat hundreds of times: check what changed, stage it, commit it with a message, and push it up.',
+      keypoints: [
+        '<code class="inline">git status</code> is your best friend — run it constantly to see where you stand.',
+        'A commit message should say <em>what changed and why</em>, in the present tense.',
+        'Once tracking is set up (<code class="inline">-u</code> on first push), plain <code class="inline">git push</code> is all you need.',
+      ],
+      steps: [
+        {
+          title: 'See what changed',
+          body: 'Shows which files are modified, staged, or untracked.',
+          cmds: [ { code: 'git status' } ],
+        },
+        {
+          title: 'Stage your changes',
+          body: 'Stage everything, or name specific files to stage only those.',
+          cmds: [
+            { code: 'git add .', comment: 'everything' },
+            { code: 'git add path/to/file', comment: 'or one file' },
+          ],
+        },
+        {
+          title: 'Commit with a message',
+          body: 'Records a snapshot of your staged changes.',
+          cmds: [ { code: 'git commit -m "Describe what you changed"' } ],
+        },
+        {
+          title: 'Push to GitHub',
+          body: 'Sends your commits to the remote.',
+          cmds: [ { code: 'git push' } ],
+        },
+      ],
+    },
+    {
+      id: 'branching',
+      group: 'Everyday workflow',
+      title: 'Branching basics',
+      intro: 'A branch lets you work on a feature or fix in isolation without touching your main code, then merge it back when it\'s ready. This is the heart of collaborating without stepping on each other.',
+      keypoints: [
+        'Never build risky work directly on <code class="inline">main</code> — branch first.',
+        'Push a branch with <code class="inline">-u</code> the first time so it\'s tracked.',
+        'On GitHub, you turn a pushed branch into a Pull Request to review and merge it.',
+      ],
+      steps: [
+        {
+          title: 'Create and switch to a new branch',
+          body: 'The modern <code class="inline">git switch -c</code> creates a branch and moves you onto it. (<code class="inline">git checkout -b</code> does the same thing and still works everywhere.)',
+          cmds: [
+            { code: 'git switch -c my-feature' },
+            { code: 'git checkout -b my-feature', comment: 'older equivalent' },
+          ],
+        },
+        {
+          title: 'Push the branch',
+          body: 'Publishes your branch to GitHub and sets up tracking.',
+          cmds: [ { code: 'git push -u origin my-feature' } ],
+        },
+        {
+          title: 'Open a Pull Request',
+          body: 'On GitHub, you\'ll see a prompt to "Compare & pull request." A PR lets others review your changes before they merge into <code class="inline">main</code>.',
+          cmds: [],
+        },
+        {
+          title: 'Switch back to main',
+          body: 'When you\'re done, move back to the main branch.',
+          cmds: [
+            { code: 'git switch main' },
+            { code: 'git checkout main', comment: 'older equivalent' },
+          ],
+        },
+      ],
+    },
+
+    /* ============================ FIXING PROBLEMS ============================ */
+    {
+      id: 'rejected-push',
+      group: 'Fixing problems',
+      title: 'Push rejected (non-fast-forward)',
+      intro: 'You try to push and Git refuses with "Updates were rejected because the tip of your current branch is behind." This means GitHub has commits your local copy doesn\'t — usually because you committed something through the GitHub website, or a teammate pushed.',
+      keypoints: [
+        'The cause: the remote has changes you don\'t have locally, so Git won\'t overwrite them.',
+        'The clean fix is <code class="inline">pull --rebase</code>, which stacks your commits neatly on top of the remote ones.',
+        'Avoid <code class="inline">--force</code> here — that would overwrite the remote\'s commits.',
+      ],
+      steps: [
+        {
+          title: 'Pull the remote changes with rebase',
+          body: 'This fetches what\'s on GitHub, replays your local commits on top of it, and keeps history clean and linear.',
+          cmds: [ { code: 'git pull --rebase origin main' } ],
+        },
+        {
+          title: 'Push again',
+          body: 'Now that your commits sit on top of the remote\'s, the push goes through.',
+          cmds: [ { code: 'git push origin main' } ],
+        },
+      ],
+    },
+    {
+      id: 'merge-editor',
+      group: 'Fixing problems',
+      title: 'Stuck in the merge-message editor',
+      intro: 'After a pull, Git sometimes opens a screen asking you to confirm a merge commit message — often the Vim editor, which shows tildes (~) down the left side and doesn\'t respond to normal typing. Here\'s how to get out.',
+      keypoints: [
+        'This screen is Git asking you to document why a merge is happening — you can almost always just accept the default.',
+        'Tildes down the left side means you\'re in Vim.',
+      ],
+      steps: [
+        {
+          title: 'To accept the default message and continue',
+          body: 'Press <code class="inline">Esc</code>, then type <code class="inline">:wq</code> (write and quit), then press <code class="inline">Enter</code>. The merge completes.',
+          cmds: [ { code: ':wq', comment: 'after pressing Esc' } ],
+        },
+        {
+          title: 'To write a custom message instead',
+          body: 'Press <code class="inline">i</code> to start typing, write your message, then press <code class="inline">Esc</code> and follow the <code class="inline">:wq</code> steps above.',
+          cmds: [],
+        },
+        {
+          title: 'Avoid this next time',
+          body: 'Using <code class="inline">git pull --rebase</code> instead of a plain <code class="inline">git pull</code> usually skips the merge-commit prompt entirely.',
+          cmds: [],
+        },
+      ],
+    },
+    {
+      id: 'wrong-remote',
+      group: 'Fixing problems',
+      title: 'Fix a wrong remote URL',
+      intro: 'Your pushes are failing or going to the wrong place because <code class="inline">origin</code> points at the wrong repository. Swap it for the correct one.',
+      keypoints: [
+        'You can\'t add a second <code class="inline">origin</code> — remove the wrong one first, then add the right one.',
+        'Always verify with <code class="inline">git remote -v</code> afterward.',
+      ],
+      steps: [
+        {
+          title: 'Remove the wrong remote',
+          cmds: [ { code: 'git remote remove origin' } ],
+        },
+        {
+          title: 'Add the correct remote',
+          cmds: [
+            { code: 'git remote add origin git@github.com:USERNAME/REPO-NAME.git' },
+          ],
+        },
+        {
+          title: 'Verify it',
+          body: 'Lists your remotes and their URLs, so you can confirm the fix.',
+          cmds: [ { code: 'git remote -v' } ],
+        },
+      ],
+    },
+
+    /* ============================ REMOVING FILES ============================ */
+    {
+      id: 'untrack',
+      group: 'Removing files',
+      title: 'Stop tracking a file (keep it locally)',
+      intro: 'A file is being tracked that shouldn\'t be — you committed <code class="inline">.env</code> or a config file by accident. This removes it from the repo but keeps it on your machine.',
+      keypoints: [
+        'Adding a file to .gitignore does nothing if it\'s already tracked — you must untrack it first.',
+        '<code class="inline">--cached</code> is the key flag: it removes from Git but leaves the file on disk.',
+        'If the file held a secret, untracking is not enough — see "Remove sensitive data".',
+      ],
+      steps: [
+        {
+          title: 'Untrack the file',
+          body: 'Removes it from Git tracking while keeping it on your machine.',
+          cmds: [
+            { code: 'git rm --cached path/to/file', comment: 'one file' },
+            { code: 'git rm -r --cached folder/', comment: 'a whole folder' },
+          ],
+        },
+        {
+          title: 'Add it to .gitignore',
+          body: 'So it doesn\'t get re-added on your next <code class="inline">git add .</code>',
+          cmds: [
+            { shell: 'append', args: ['path/to/file', '.gitignore'] },
+          ],
+        },
+        {
+          title: 'Commit and push',
+          body: 'Records the removal.',
+          cmds: [
+            { code: 'git add .gitignore' },
+            { code: 'git commit -m "Stop tracking file"' },
+            { code: 'git push' },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'delete-file',
+      group: 'Removing files',
+      title: 'Delete a file everywhere',
+      intro: 'You want a file gone from both the repository and your local folder going forward.',
+      keypoints: [
+        'This deletes the file from your disk too — unlike <code class="inline">--cached</code>, which keeps it.',
+        'The file still exists in past commits; to erase it from history, see "Remove sensitive data".',
+      ],
+      steps: [
+        {
+          title: 'Remove the file',
+          body: 'Deletes it from the repo and from your local folder.',
+          cmds: [ { code: 'git rm path/to/file' } ],
+        },
+        {
+          title: 'Commit and push',
+          cmds: [
+            { code: 'git commit -m "Delete file"' },
+            { code: 'git push' },
+          ],
+        },
+        {
+          title: 'No terminal? Use the GitHub website',
+          body: 'Open the file on GitHub, click the trash icon (Delete this file), and commit the change. Quick, but only removes it from the latest commit — not history.',
+          cmds: [],
+        },
+      ],
+    },
+    {
+      id: 'remove-secrets',
+      group: 'Removing files',
+      title: 'Remove sensitive data from history',
+      intro: 'You committed a password, API key, or private file — and just deleting it in a new commit is NOT enough. It still lives in every previous snapshot. You have to rewrite history to erase it completely.',
+      keypoints: [
+        'Deleting the file in a new commit leaves it fully accessible in older commits.',
+        '<code class="inline">git filter-repo</code> is the current recommended tool (it replaced the old <code class="inline">filter-branch</code>).',
+        'Rewriting history changes commit IDs — coordinate with collaborators, who will need to re-clone.',
+      ],
+      steps: [
+        {
+          title: 'Install git-filter-repo',
+          body: 'It\'s a separate tool (not built into Git) but is the method the Git project itself recommends. It needs Python 3.',
+          cmds: [
+            { code: 'pip install git-filter-repo' },
+          ],
+        },
+        {
+          title: 'Erase the file from all history',
+          body: '<code class="inline">--invert-paths</code> means "remove this path" rather than "keep only this path." This rewrites every commit that ever touched the file.',
+          cmds: [
+            { code: 'git filter-repo --path path/to/file --invert-paths' },
+          ],
+        },
+        {
+          title: 'Force-push the rewritten history',
+          body: 'Because you changed history, a normal push won\'t work — you have to overwrite the remote.',
+          cmds: [
+            { code: 'git push origin --force --all' },
+          ],
+          callout: { type: 'warn', html: '<strong>Force-pushing rewrites the remote.</strong> Anyone else working on this repo must re-clone it afterward, or their history will conflict. Coordinate before you do this.' },
+        },
+        {
+          title: 'Rotate the exposed secret — immediately',
+          body: 'This is the step people skip and regret. Once a secret has been pushed, assume it is already compromised. Removing it from history does not un-leak it.',
+          cmds: [],
+          callout: { type: 'warn', html: '<strong>Change the password. Regenerate the key.</strong> Treat any secret that ever reached GitHub as public knowledge, even after cleanup — bots scrape public commits within seconds.' },
+        },
+      ],
+    },
+
+    /* ============================ MOVING PROJECTS ============================ */
+    {
+      id: 'switch-repo-history',
+      group: 'Moving projects',
+      title: 'Move a subfolder to its own repo (keep history)',
+      intro: 'You have one big repo containing a subproject, and you want to pull that subfolder out into its own repository — while keeping the commit history that belongs to it. This uses <code class="inline">git subtree split</code> to extract just the commits that touched that folder.',
+      keypoints: [
+        'Best when the subproject has meaningful history worth preserving.',
+        '<code class="inline">subtree split</code> extracts only the commits that touched the target folder.',
+      ],
+      steps: [
+        {
+          title: 'Extract the subfolder\'s history to a branch',
+          body: 'Replace <code class="inline">SUBFOLDER</code> with the path inside your current repo. This creates a branch containing only that folder\'s commits.',
+          cmds: [
+            { code: 'git subtree split --prefix=SUBFOLDER -b subproject-standalone' },
+          ],
+        },
+        {
+          title: 'Create a fresh folder and repo for it',
+          cmds: [
+            { shell: 'mkdir', args: ['~/path/to/NewProject'] },
+            { code: 'cd ~/path/to/NewProject' },
+            { code: 'git init' },
+          ],
+        },
+        {
+          title: 'Pull in the extracted branch',
+          body: 'Point this at your original repo\'s location and the branch you created.',
+          cmds: [
+            { code: 'git pull /path/to/original-repo subproject-standalone' },
+          ],
+        },
+        {
+          title: 'Create the GitHub repo and push',
+          body: 'Using the GitHub CLI (<code class="inline">gh</code>) here, though you can also create the repo in the browser and just add the remote. Note the branch may be <code class="inline">master</code> or <code class="inline">main</code> depending on how the split landed — check with <code class="inline">git branch</code>.',
+          cmds: [
+            { code: 'gh repo create USERNAME/NewProject --public' },
+            { code: 'git remote add origin https://github.com/USERNAME/NewProject.git' },
+            { code: 'git push -u origin main' },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'switch-repo-fresh',
+      group: 'Moving projects',
+      title: 'Move a project to a new repo (fresh start)',
+      intro: 'You want a subfolder or project in its own repository, and you don\'t care about preserving the old commit history. This is the simpler path — just copy the files and start clean.',
+      keypoints: [
+        'Simplest option when history doesn\'t matter.',
+        'The new repo starts with a single "Initial commit".',
+      ],
+      steps: [
+        {
+          title: 'Copy the folder somewhere new',
+          cmds: [
+            { shell: 'cprf', args: ['SUBFOLDER', '~/path/to/NewProject'] },
+            { code: 'cd ~/path/to/NewProject' },
+          ],
+        },
+        {
+          title: 'Initialize a fresh repo',
+          cmds: [
+            { code: 'git init' },
+            { code: 'git add .' },
+            { code: 'git commit -m "Initial commit"' },
+          ],
+        },
+        {
+          title: 'Create the GitHub repo and push',
+          cmds: [
+            { code: 'gh repo create USERNAME/NewProject --public' },
+            { code: 'git remote add origin https://github.com/USERNAME/NewProject.git' },
+            { code: 'git push -u origin main' },
+          ],
+        },
+      ],
+    },
+
+    /* ============================ ADVANCED SETUP ============================ */
+    {
+      id: 'ssh-keys',
+      group: 'Advanced setup',
+      title: 'Set up SSH keys',
+      intro: 'SSH keys let you push and pull without typing your username and password every time. You generate a key pair, give GitHub the public half, and keep the private half on your machine.',
+      keypoints: [
+        'Set this up once and pushing becomes friction-free.',
+        'The <code class="inline">.pub</code> file is safe to share; the other file is private — never share it.',
+        'Ed25519 is the current recommended key type.',
+      ],
+      steps: [
+        {
+          title: 'Generate a key pair',
+          body: 'Use the email tied to your GitHub account. Press Enter to accept the default file location; add a passphrase if you want extra protection.',
+          cmds: [
+            { code: 'ssh-keygen -t ed25519 -C "you@example.com"' },
+          ],
+        },
+        {
+          title: 'Copy the public key',
+          body: 'Open the <code class="inline">.pub</code> file and copy its entire contents.',
+          cmds: [
+            { code: 'cat ~/.ssh/id_ed25519.pub' },
+          ],
+        },
+        {
+          title: 'Add it to GitHub',
+          body: 'On GitHub: Settings → SSH and GPG keys → New SSH key. Paste the public key, give it a name, and save.',
+          cmds: [],
+        },
+        {
+          title: 'Test the connection',
+          body: 'You should see a greeting with your username.',
+          cmds: [
+            { code: 'ssh -T git@github.com' },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'ssh-multiple',
+      group: 'Advanced setup',
+      title: 'Multiple GitHub accounts (SSH host alias)',
+      intro: 'If you juggle two GitHub accounts on one machine — say personal and work — you can\'t use the same default key for both. The fix is a "host alias" in your SSH config that maps a made-up hostname to a specific key. This is what a remote URL like <code class="inline">git@github-personal:...</code> is doing.',
+      keypoints: [
+        'Each account gets its own key and its own alias in <code class="inline">~/.ssh/config</code>.',
+        '<code class="inline">IdentitiesOnly yes</code> forces SSH to use exactly the key you specify.',
+        'You then use the alias (not <code class="inline">github.com</code>) in that repo\'s remote URL.',
+      ],
+      steps: [
+        {
+          title: 'Generate a separate key per account',
+          body: 'Give each a distinct filename so they don\'t overwrite each other.',
+          cmds: [
+            { code: 'ssh-keygen -t ed25519 -C "personal@example.com" -f ~/.ssh/id_personal' },
+            { code: 'ssh-keygen -t ed25519 -C "work@example.com" -f ~/.ssh/id_work' },
+          ],
+        },
+        {
+          title: 'Add each public key to its matching GitHub account',
+          body: 'Same as single-key setup (Settings → SSH and GPG keys), just done once per account with the correct key.',
+          cmds: [],
+        },
+        {
+          title: 'Create host aliases in ~/.ssh/config',
+          body: 'Each <code class="inline">Host</code> line is a nickname you invent. <code class="inline">HostName</code> is always the real <code class="inline">github.com</code>; the <code class="inline">IdentityFile</code> is which key to use.',
+          cmds: [
+            { code: 'Host github-personal\n  HostName github.com\n  User git\n  IdentityFile ~/.ssh/id_personal\n  IdentitiesOnly yes\n\nHost github-work\n  HostName github.com\n  User git\n  IdentityFile ~/.ssh/id_work\n  IdentitiesOnly yes', comment: 'paste into ~/.ssh/config' },
+          ],
+        },
+        {
+          title: 'Use the alias in your remote URL',
+          body: 'Swap <code class="inline">github.com</code> for your alias. Now this repo automatically uses the matching key.',
+          cmds: [
+            { code: 'git remote add origin git@github-personal:USERNAME/REPO-NAME.git' },
+          ],
+        },
+        {
+          title: 'Set the right identity per repo',
+          body: 'So commits from each repo are attributed to the correct account. Run inside the repo (no <code class="inline">--global</code>).',
+          cmds: [
+            { code: 'git config user.name "Your Name"' },
+            { code: 'git config user.email "personal@example.com"' },
+          ],
+        },
+      ],
+    },
+  ];
+
+  /* ── Build sidebar + mobile select ── */
+  const sideEl = document.getElementById('side');
+  const topicsEl = document.getElementById('topics');
+  const mobileSelect = document.getElementById('mobile-select');
+
+  const groups = [];
+  TOPICS.forEach((t, i) => {
+    let g = groups.find(x => x.name === t.group);
+    if (!g) { g = { name: t.group, items: [] }; groups.push(g); }
+    g.items.push({ topic: t, index: i });
+  });
+
+  let globalIndex = 0;
+  groups.forEach(g => {
+    const groupEl = document.createElement('div');
+    groupEl.className = 'side-group';
+    groupEl.innerHTML = `<div class="side-group-label">${g.name}</div>`;
+    g.items.forEach(({ topic }) => {
+      const n = ++globalIndex;
+      const link = document.createElement('div');
+      link.className = 'side-link';
+      link.dataset.target = topic.id;
+      link.innerHTML = `<span class="side-num">${String(n).padStart(2,'0')}</span><span>${topic.title}</span>`;
+      link.addEventListener('click', () => selectTopic(topic.id));
+      groupEl.appendChild(link);
+    });
+    sideEl.appendChild(groupEl);
+
+    // mobile optgroup
+    const og = document.createElement('optgroup');
+    og.label = g.name;
+    g.items.forEach(({ topic }) => {
+      const opt = document.createElement('option');
+      opt.value = topic.id;
+      opt.textContent = topic.title;
+      og.appendChild(opt);
+    });
+    mobileSelect.appendChild(og);
+  });
+  mobileSelect.addEventListener('change', (e) => selectTopic(e.target.value));
+
+  /* ── Render all topic panels ── */
+  function cmdCode(cmd) {
+    if (cmd.code != null) return cmd.code;
+    const variant = SHELL[cmd.shell][term];
+    return variant(...cmd.args);
+  }
+
+  function renderTopics() {
+    topicsEl.innerHTML = '';
+    TOPICS.forEach(topic => {
+      const el = document.createElement('section');
+      el.className = 'topic';
+      el.id = 'topic-' + topic.id;
+      el.dataset.id = topic.id;
+
+      const kp = topic.keypoints ? `
+        <div class="keypoints">
+          <div class="keypoints-title">Key points</div>
+          <ul>${topic.keypoints.map(k => `<li>${k}</li>`).join('')}</ul>
+        </div>` : '';
+
+      const steps = topic.steps.map((s, i) => {
+        const cmds = (s.cmds || []).map(c => {
+          const code = cmdCode(c);
+          const cmt = c.comment ? `<span class="cmt"># ${escapeHtml(c.comment)}</span>\n` : '';
+          return `<div class="g-cmd"><pre>${cmt}${escapeHtml(code)}</pre><button class="copy-btn" data-copy="${encodeURIComponent(code)}">copy</button></div>`;
+        }).join('');
+        const callout = s.callout ? `<div class="callout ${s.callout.type}">${s.callout.html}</div>` : '';
+        const body = s.body ? `<p>${s.body}</p>` : '';
+        return `
+          <div class="g-step">
+            <div class="g-step-num">${i + 1}</div>
+            <div class="g-step-body">
+              <h3>${escapeHtml(s.title)}</h3>
+              ${body}
+              ${cmds}
+              ${callout}
+            </div>
+          </div>`;
+      }).join('');
+
+      el.innerHTML = `
+        <div class="panel-eyebrow">${escapeHtml(topic.group)}</div>
+        <h1 style="font-size:clamp(24px,3.4vw,30px); margin-bottom:10px;">${escapeHtml(topic.title)}</h1>
+        <p class="panel-intro">${topic.intro}</p>
+        ${kp}
+        ${steps}
+      `;
+      topicsEl.appendChild(el);
+    });
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  /* ── Selection ── */
+  let currentId = TOPICS[0].id;
+  function selectTopic(id) {
+    currentId = id;
+    document.querySelectorAll('.topic').forEach(t => t.classList.toggle('active', t.dataset.id === id));
+    document.querySelectorAll('.side-link').forEach(l => l.classList.toggle('active', l.dataset.target === id));
+    if (mobileSelect.value !== id) mobileSelect.value = id;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    history.replaceState(null, '', '#' + id);
+  }
+
+  /* ── Terminal switching ── */
+  document.getElementById('term-switch').addEventListener('click', (e) => {
+    const btn = e.target.closest('.term-btn');
+    if (!btn) return;
+    term = btn.dataset.term;
+    document.querySelectorAll('.term-btn').forEach(b => b.classList.toggle('active', b === btn));
+    renderTopics();
+    selectTopic(currentId);
+  });
+
+  /* ── Copy handler (delegated) ── */
+  topicsEl.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-copy]');
+    if (!btn) return;
+    const text = decodeURIComponent(btn.getAttribute('data-copy'));
+    const done = () => {
+      const original = btn.textContent;
+      btn.textContent = 'copied';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = original; btn.classList.remove('copied'); }, 1200);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(done);
+    } else { done(); }
+  });
+
+  /* ── Init ── */
+  renderTopics();
+  const fromHash = location.hash.replace('#', '');
+  selectTopic(TOPICS.some(t => t.id === fromHash) ? fromHash : TOPICS[0].id);
+})();
+</script>
+
+</body>
+</html>

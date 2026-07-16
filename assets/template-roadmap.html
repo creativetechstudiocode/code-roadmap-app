@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!--
+  ══════════════════════════════════════════════════════════════════
+  ROADMAP PAGE TEMPLATE — Code's Roadmap / Creative Tech Studio
+  ══════════════════════════════════════════════════════════════════
+
+  WHAT THIS IS
+  A roadmap page: a single start-to-finish trail of numbered waypoints
+  you follow top to bottom, with a progress bar, checkable steps, and
+  progress saved in the browser. Use this for content with one correct
+  sequence and a finish line. For lookup-style reference content you
+  jump around in (a sidebar of independent topics with a terminal
+  switcher), copy template-guide-roadmap.html instead.
+
+  HOW TO USE THIS FILE
+  0. Copy this file into the /pages/ folder alongside the other roadmap
+     pages. It links /assets/styles.css and /assets/ctslogo.png by
+     absolute path, so those must exist at the site root.
+  1. Copy this file, rename it to match your roadmap (e.g. git-basics.html)
+  2. Update the <title> tag below
+  3. Search for "EDIT:" comments throughout this file — those are every
+     spot you need to touch. Everything else can stay as-is.
+  4. Change PROGRESS_KEY in the script (near the bottom) to something
+     unique to this page. If two pages share a key, checking off steps
+     on one will overwrite progress on the other.
+  5. Fill in the STEPS array with your own waypoints.
+  6. Add a card linking to this page from index.html, in the right
+     category grid.
+
+  STEP OBJECT REFERENCE
+    id           — unique short string, no spaces (used for storage + DOM)
+    name         — short flavor label shown in italics next to the title
+                   (optional — omit the property to skip it)
+    title        — the real, plain-language title of the step
+    badge        — one of: 'local' | 'cloud' | 'manual' | 'done'
+                     local  = runs only on their machine, changes nothing external
+                     cloud  = creates or changes something outside their machine
+                     manual = a step done by hand in some dashboard/UI, not code
+                     done   = the final "you made it" step
+    badgeLabel   — the short text shown inside the badge pill
+    desc         — 1–3 sentences explaining what this step is and why
+    commands     — optional array of copyable command-line strings
+    manualSteps  — optional array of plain-text instructions (use INSTEAD
+                   of commands, for dashboard/UI steps — see step 4 below
+                   for an example)
+
+  Every step gets a "mark cleared" checkbox automatically, except the
+  last one (it's assumed to be the finish line). If your roadmap doesn't
+  end in a single "you're done" moment, just give the last real step a
+  normal badge instead of 'done' and delete the badge==='done' check
+  further down if you don't want an "arrival" feel at all.
+  ══════════════════════════════════════════════════════════════════
+-->
+
+<!-- EDIT: page title (shows in browser tab) -->
+<title>[Roadmap Title] — Code's Roadmap</title>
+
+<link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+
+<div class="bg-field"></div>
+
+<div class="nav">
+  <a class="nav-brand" href="/index.html">
+    <img src="/assets/ctslogo.png" alt="Creative Tech Studio logo">
+    <span>Creative Tech Studio</span>
+  </a>
+  <a class="back-link" href="/index.html">← All Roadmaps</a>
+</div>
+
+<div class="wrap wrap--trail">
+
+  <div class="trail-header">
+    <!-- EDIT: eyebrow = "Category · Short Roadmap Name" -->
+    <div class="trail-eyebrow">[Category] · [Roadmap Name]</div>
+    <!-- EDIT: title = outcome-focused, matches the homepage card title exactly -->
+    <h1 class="trail-title">[Roadmap Title]</h1>
+    <!-- EDIT: subtitle = 1-2 sentences, what they'll have by the end -->
+    <p class="trail-sub">[One or two sentences describing what this roadmap covers and what you'll have built or learned by the end.]</p>
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span id="progress-text">0 / 0 cleared</span>
+        <span id="progress-pct">0%</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+    </div>
+    <!-- EDIT: legend — delete any line for a badge type you don't use -->
+    <div class="legend">
+      <span>⚪ local only</span>
+      <span>🟠 creates something</span>
+      <span>⚪ manual step</span>
+    </div>
+  </div>
+
+  <div class="trail">
+    <div class="trail-spine"></div>
+    <div id="stops"></div>
+  </div>
+
+  <!-- EDIT: summit banner text, or delete this div if the roadmap has no single "finish line" moment -->
+  <div class="summit-banner" id="summit-banner">🎉 All done — nice work.</div>
+
+  <div class="reset-row">
+    <button class="reset-btn" id="reset-btn">reset progress</button>
+  </div>
+</div>
+
+<footer>CREATIVE TECH STUDIO — CODE'S ROADMAP</footer>
+
+<script>
+(function () {
+
+  // EDIT: give every roadmap page its own unique key, or progress
+  // from different roadmaps will overwrite each other in the browser.
+  const PROGRESS_KEY = 'roadmap-progress--CHANGE-ME';
+
+  // EDIT: replace with your own steps. See the comment block at the
+  // top of this file for what each field does. Delete these sample
+  // steps once you've written your own — they're only here to show
+  // one example of every step type.
+  const STEPS = [
+    {
+      id: 'step-1',
+      name: 'First stop',
+      title: 'Do the first thing',
+      badge: 'local',
+      badgeLabel: 'local only',
+      desc: 'Explain what this step is and why it comes first.',
+      commands: ['example --command here'],
+    },
+    {
+      id: 'step-2',
+      name: 'Second stop',
+      title: 'Do the second thing',
+      badge: 'cloud',
+      badgeLabel: 'creates something',
+      desc: 'A step that creates or changes something outside their own machine.',
+      commands: ['another --example'],
+    },
+    {
+      id: 'step-3',
+      name: 'Third stop',
+      title: 'A manual, hands-on step',
+      badge: 'manual',
+      badgeLabel: 'done by hand',
+      desc: 'Use manualSteps (instead of commands) for anything done by clicking through a dashboard or UI rather than typing.',
+      manualSteps: [
+        'First thing to click or do',
+        'Second thing to click or do',
+        'Save / confirm',
+      ],
+    },
+    {
+      id: 'step-4',
+      name: "You're finished",
+      title: 'Wrap up',
+      badge: 'done',
+      badgeLabel: 'complete',
+      desc: 'The last step. It has no "mark cleared" checkbox — reaching it while every step above is cleared triggers the summit banner.',
+    },
+  ];
+
+  const stopsEl = document.getElementById('stops');
+  const progressFill = document.getElementById('progress-fill');
+  const progressText = document.getElementById('progress-text');
+  const progressPct = document.getElementById('progress-pct');
+  const summitBanner = document.getElementById('summit-banner');
+  const resetBtn = document.getElementById('reset-btn');
+
+  let completed = new Set();
+  let expanded = new Set();
+
+  function badgeIcon(badge) {
+    if (badge === 'cloud') return '🟠';
+    if (badge === 'manual') return '⚪';
+    if (badge === 'done') return '🎉';
+    return '⚪';
+  }
+
+  function render() {
+    stopsEl.innerHTML = '';
+    const firstIncompleteIdx = STEPS.findIndex(s => !completed.has(s.id));
+
+    STEPS.forEach((step, i) => {
+      const isCleared = completed.has(step.id);
+      const isCurrent = !isCleared && i === firstIncompleteIdx;
+      const isExpanded = expanded.has(step.id) || isCurrent;
+      const isLast = i === STEPS.length - 1;
+
+      const stopEl = document.createElement('div');
+      stopEl.className = 'stop' + (isCleared ? ' cleared' : '') + (isCurrent ? ' current' : '') + (isExpanded ? ' expanded' : '');
+
+      const cmdHtml = (step.commands || []).map((c) =>
+        `<div class="cmd-block">
+          <pre>${escapeHtml(c)}</pre>
+          <button class="copy-btn" data-copy="${encodeURIComponent(c)}">copy</button>
+        </div>`
+      ).join('');
+
+      const manualHtml = step.manualSteps
+        ? `<ol class="manual-list">${step.manualSteps.map(m => `<li>${escapeHtml(m)}</li>`).join('')}</ol>`
+        : '';
+
+      stopEl.innerHTML = `
+        <div class="stop-marker" data-toggle="${step.id}">${isCleared ? '✓' : i + 1}</div>
+        <div class="stop-card" data-toggle="${step.id}">
+          <div class="stop-card-head">
+            <div>
+              <div class="stop-title-row">
+                <span class="stop-title">${escapeHtml(step.title)}</span>
+                ${step.name ? `<span class="stop-name">${escapeHtml(step.name)}</span>` : ''}
+              </div>
+              <span class="badge ${step.badge}">${badgeIcon(step.badge)} ${escapeHtml(step.badgeLabel)}</span>
+            </div>
+            <span class="chevron">▸</span>
+          </div>
+          <div class="stop-detail">
+            <div class="stop-detail-inner">
+              <p class="stop-desc">${escapeHtml(step.desc)}</p>
+              ${cmdHtml}
+              ${manualHtml}
+              ${!isLast ? `
+                <div class="clear-row" data-clear-row>
+                  <div class="clear-check ${isCleared ? 'on' : ''}" data-clear="${step.id}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+                  </div>
+                  <label class="clear-label" data-clear="${step.id}">Mark cleared</label>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+      stopsEl.appendChild(stopEl);
+    });
+
+    // progress (counts everything except the final step)
+    const trackedCount = STEPS.length - 1;
+    const doneCount = completed.size;
+    const pct = trackedCount > 0 ? Math.round((doneCount / trackedCount) * 100) : 0;
+    progressFill.style.width = pct + '%';
+    progressText.textContent = doneCount + ' / ' + trackedCount + ' cleared';
+    progressPct.textContent = pct + '%';
+    summitBanner.classList.toggle('show', doneCount === trackedCount && trackedCount > 0);
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  stopsEl.addEventListener('click', (e) => {
+    const clearTarget = e.target.closest('[data-clear]');
+    if (clearTarget) {
+      e.stopPropagation();
+      const id = clearTarget.getAttribute('data-clear');
+      if (completed.has(id)) completed.delete(id); else completed.add(id);
+      saveProgress();
+      render();
+      return;
+    }
+
+    const copyTarget = e.target.closest('[data-copy]');
+    if (copyTarget) {
+      e.stopPropagation();
+      const text = decodeURIComponent(copyTarget.getAttribute('data-copy'));
+      copyToClipboard(text, copyTarget);
+      return;
+    }
+
+    const toggleTarget = e.target.closest('[data-toggle]');
+    if (toggleTarget) {
+      const id = toggleTarget.getAttribute('data-toggle');
+      if (expanded.has(id)) expanded.delete(id); else expanded.add(id);
+      render();
+    }
+  });
+
+  function copyToClipboard(text, btn) {
+    const done = () => {
+      const original = btn.textContent;
+      btn.textContent = 'copied';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = original;
+        btn.classList.remove('copied');
+      }, 1200);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(done);
+    } else {
+      done();
+    }
+  }
+
+  resetBtn.addEventListener('click', () => {
+    completed = new Set();
+    expanded = new Set();
+    saveProgress();
+    render();
+  });
+
+  function loadProgress() {
+    try {
+      const raw = localStorage.getItem(PROGRESS_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed.completed)) completed = new Set(parsed.completed);
+      }
+    } catch (e) {
+      // no saved progress yet, or storage unavailable
+    }
+    render();
+  }
+
+  function saveProgress() {
+    try {
+      localStorage.setItem(PROGRESS_KEY, JSON.stringify({ completed: Array.from(completed) }));
+    } catch (e) {
+      console.error('Could not save progress', e);
+    }
+  }
+
+  loadProgress();
+})();
+</script>
+
+</body>
+</html>
