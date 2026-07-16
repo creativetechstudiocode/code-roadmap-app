@@ -49,7 +49,7 @@ A matched pair of starter files lives in `assets/`. Copy one into `pages/`, edit
 
 Everything shares one CTS-branded look, with tokens defined at the top of `assets/styles.css` (see `assets/design-system.html` for the full reference):
 
-- **Palette** : a near-black background (`--void #0A1220`) with orange (`--orange #FF6B2C`) and cyan (`--cyan #2FE6E6`) accents pulled from the CTS logo. Never introduce a third accent — every moment is orange, cyan, or neutral ink.
+- **Palette** : a near-black background (`--void #0A1220`) with orange (`--orange #FF6B2C`) and cyan (`--cyan #2FE6E6`) accents pulled from the CTS logo. Never introduce a third accent only use orange, cyan, or neutral ink.
 - **Type** : Chakra Petch (display/titles), Inter (body), JetBrains Mono (code, labels, counts). Loaded from Google Fonts; no fourth face.
 
 ## Running locally
